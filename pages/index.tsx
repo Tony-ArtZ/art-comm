@@ -1,9 +1,49 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from '../styles/Home.module.css'
+import Head from "next/head";
+import Image from "next/image";
+import bghero from "../public/bg_hero.svg";
+import artist from "../public/artist.png";
+import { FaSearch } from "react-icons/fa";
+import { BiMenu } from "react-icons/bi";
 
-const inter = Inter({ subsets: ['latin'] })
+const Hero = () => {
+  return (
+    <header className="w-screen 2xl:h-[870px] xl:h-[750px] bg-hero bg-cover ">
+      <Image
+        src={artist}
+        alt="artist"
+        className="absolute right-32 2xl:top-20 xl:top-32 2xl:h-[780px] xl:h-[600px] 2xl:w-[780px] xl:w-[600px] animate-float"
+      />
+      <nav className="flex p-5 px-8 flex-row w-screen absolute justify-between">
+        <button>
+          <BiMenu className="text-interactive drop-shadow-glow text-[55px]" />
+        </button>
+        <div className="  2xl:h-14 xl:h-12 absolute left-0 right-0 ml-auto mr-auto lg:w-[400px] 2xl:w-[456px] flex flex-row justify-center items-center">
+          <input className=" bg-primary text-white text-xl font-inter shadow-glowLow rounded-[40px] h-full p-6 w-full outline-none " />
+          <div className="h-full 2xl:w-14 xl:w-12 absolute right-0 rounded-full outline outline-secondary outline-[12px]" />
+          <button className=" text-white text-xl flex justify-center shadow-glowLow items-center 2xl:w-14 xl:w-12 h-full right-0 absolute rounded-full ">
+            <FaSearch
+              fontSize="24px"
+              className="text-secondary 2xl:text-[24px] xl:text-xl hover:text-white hover:drop-shadow-glowHigh 2xl:hover:text-3xl xl:hover:text-2xl transition-all ease-in-out"
+            />
+          </button>
+        </div>
+        <ul className="flex 2xl:gap-8 xl:gap-4 mt-3 flex-row absolute right-24">
+          <li className="list-item">Become An Artist</li>
+          <li className="list-item">Sign In</li>
+          <li className="list-item">Join Us</li>
+        </ul>
+      </nav>
+      <section className="flex z-10 flex-col 2xl:pt-72 xl:pt-64 pl-12 justify-center w-fit items-center">
+        <h1 className="w-[600px] leading-tight font-Inter text-heading text-center 2xl:text-[80px] xl:text-[70px]">
+          YOUR ART JOURNEY BEGINS HERE
+        </h1>
+        <button className="btn-primary before:content-[''] font-inter">
+          Get Started
+        </button>
+      </section>
+    </header>
+  );
+};
 
 export default function Home() {
   return (
@@ -14,110 +54,9 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
-        </div>
-
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
-          />
-          <div className={styles.thirteen}>
-            <Image
-              src="/thirteen.svg"
-              alt="13"
-              width={40}
-              height={31}
-              priority
-            />
-          </div>
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
-        </div>
+      <main>
+        <Hero />
       </main>
     </>
-  )
+  );
 }
