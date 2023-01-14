@@ -42,7 +42,7 @@ module.exports = {
         }
       },
       screens: {
-        "sm-md" : {'min':'902px'}
+        "sm-md" :'902px',
       },
     },
   },

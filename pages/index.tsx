@@ -33,8 +33,8 @@ const Hero = () => {
           <li className="list-item">Join Us</li>
         </ul>
       </nav>
-      <section className="flex z-10 flex-col 2xl:pt-72 xl:pt-64 pt-32 sm-md:pt-48 sm:pl-12 justify-center sm-md:w-min w-full items-center">
-        <h1 className="xl:w-[600px] sm-md:w-[400px] sm:w-[600px] w-full leading-tight font-Inter text-heading text-center sm-md:text-[60px] 2xl:text-[80px] xl:text-[70px] sm:text-[70px] text-3xl">
+      <section className="flex z-10 flex-col 2xl:pt-72 xl:pt-64 pt-32 sm-md:pt-48 sm-md:pl-12 pl-0 justify-center sm-md:w-min w-full items-center">
+        <h1 className="xl:w-[600px] sm-md:w-[400px] md:w-[500px] sm:w-[600px] w-80 leading-tight font-Inter text-heading text-center  sm-md:text-[50px] lg:text-[60px] 2xl:text-[80px] xl:text-[70px] sm:text-[70px] text-[40px]">
           YOUR ART JOURNEY BEGINS HERE
         </h1>
         <button className="btn-primary before:content-[''] font-inter">
