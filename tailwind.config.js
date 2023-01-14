@@ -17,6 +17,7 @@ module.exports = {
         },
       backgroundImage: {
         hero: "url('/bg.png')",
+        featured: "url('/featured.png')",
       },
       boxShadow: {
         glow: "4px 7px 10px rgba(255, 130, 130, 0.5)",

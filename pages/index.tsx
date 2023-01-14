@@ -15,21 +15,21 @@ const Hero = () => {
       />
       <nav className="flex p-5 px-8 flex-row w-screen absolute justify-between">
         <button>
-          <BiMenu className="text-interactive drop-shadow-glow text-[55px]" />
+          <BiMenu className="text-interactive drop-shadow-glow sm:text-[55px] text-4xl" />
         </button>
-        <div className=" h-8 sm:h-12 2xl:h-14 absolute left-0 right-0 ml-auto mr-auto xl:w-[400px] 2xl:w-[456px] sm:w-[350px] w-[60vw]  flex flex-row justify-center items-center">
+        <div className=" h-8 sm:h-12 2xl:h-14 absolute left-0 right-0 sm:ml-auto sm:mr-auto ml-12 xl:w-[400px] 2xl:w-[456px] sm:w-[350px] w-[60vw]  flex flex-row justify-center items-center">
           <input className=" bg-primary text-white text-xl font-inter shadow-glowLow rounded-[40px] h-full p-6 w-full outline-none " />
-          <div className="h-full 2xl:w-14 lg:w-12  absolute right-0 rounded-full outline outline-secondary outline-[12px]" />
-          <button className=" text-white text-xl flex justify-center shadow-glowLow items-center 2xl:w-14 lg:w-12 h-full right-0 absolute rounded-full ">
+          <div className="h-full 2xl:w-14 sm:w-12 w-8 absolute right-0 rounded-full outline outline-secondary outline-[12px]" />
+          <button className=" text-white text-xl flex justify-center shadow-glowLow items-center 2xl:w-14 sm:w-12 w-8 h-full right-0 absolute rounded-full ">
             <FaSearch
               fontSize="24px"
-              className="text-secondary 2xl:text-[24px] lg:text-xl hover:text-white hover:drop-shadow-glowHigh 2xl:hover:text-3xl xl:hover:text-2xl transition-all ease-in-out"
+              className="text-secondary 2xl:text-[24px] sm:text-xl text-lg hover:text-white hover:drop-shadow-glowHigh 2xl:hover:text-3xl sm:hover:text-2xl hover:text-xl transition-all ease-in-out"
             />
           </button>
         </div>
-        <ul className="flex gap-2 2xl:gap-8 xl:gap-4 mt-3 flex-row absolute xl:right-24 sm:right-8 lg:right-12">
+        <ul className="flex gap-2 2xl:gap-8 xl:gap-4 mt-3 flex-row absolute xl:right-24 sm:right-8 lg:right-12 right-0">
           <li className="list-item lg:flex hidden">Become An Artist</li>
-          <li className="list-item">Sign In</li>
+          <li className="list-item sm:flex hidden">Sign In</li>
           <li className="list-item">Join Us</li>
         </ul>
       </nav>
@@ -45,6 +45,12 @@ const Hero = () => {
   );
 };
 
+const FeaturedFeed = ()=>{
+  return (
+    <header className="w-screen 2xl:h-[870px] xl:h-[750px] sm:h-[600px] bg-featured bg-cover h-[256px] ">
+    </header>
+    )
+}
 export default function Home() {
   return (
     <>
