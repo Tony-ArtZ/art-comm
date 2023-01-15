@@ -16,8 +16,8 @@ module.exports = {
           Inter: ["Inter", "sans-serif"],
         },
       backgroundImage: {
-        hero: "url('/bg.png')",
-        featured: "url('/featured.png')",
+        hero: "url('/hero.svg')",
+        featured: "url('/featured.svg')",
       },
       boxShadow: {
         glow: "4px 7px 10px rgba(255, 130, 130, 0.5)",
