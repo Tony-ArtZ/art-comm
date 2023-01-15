@@ -6,7 +6,7 @@ import { BiMenu } from "react-icons/bi";
 
 const Hero = () => {
   return (
-    <header className="w-screen 2xl:h-[870px] xl:h-[750px] sm:h-[600px] bg-hero bg-cover h-[256px] ">
+    <header className="w-screen 2xl:h-[870px] xl:h-[750px] sm:h-[600px] bg-hero bg-cover h-[300px] ">
       <Image
         src={artist}
         alt="artist"
@@ -32,8 +32,8 @@ const Hero = () => {
           <li className="list-item">Join Us</li>
         </ul>
       </nav>
-      <section className="flex z-10 flex-col 2xl:pt-72 xl:pt-64 pt-32 sm-md:pt-48 sm-md:pl-12 pl-0 justify-center sm-md:w-min w-full items-center">
-        <h1 className="xl:w-[600px] sm-md:w-[400px] md:w-[500px] sm:w-[600px] w-80 leading-tight font-Inter text-heading text-center  sm-md:text-[50px] lg:text-[60px] 2xl:text-[80px] xl:text-[70px] sm:text-[70px] text-[40px]">
+      <section className="flex z-10 flex-col 2xl:pt-72 xl:pt-64 sm:pt-32 pt-24 sm-md:pt-48 sm-md:pl-12 pl-0 justify-center sm-md:w-min w-full items-center">
+        <h1 className="xl:w-[600px] sm-md:w-[400px] md:w-[500px] sm:w-[600px] w-80 leading-tight font-Inter text-heading text-center  sm-md:text-[50px] lg:text-[60px] 2xl:text-[80px] xl:text-[70px] sm:text-[70px] text-[30px]">
           YOUR ART JOURNEY BEGINS HERE
         </h1>
         <button className="btn-primary before:content-[''] font-inter">
