@@ -44,12 +44,14 @@ const Hero = () => {
   );
 };
 
-const FeaturedFeed = ()=>{
+const FeaturedFeed = () => {
   return (
-    <header className="w-screen 2xl:h-[870px] xl:h-[750px] sm:h-[600px] bg-featured bg-cover h-[256px] ">
-      <h1>FASFASFS</h1>
+    <header className="w-screen 2xl:h-[870px] xl:h-[750px] sm:h-[600px] bg-featured bg-cover h-[300px] ">
+      <h1 className="xl:w-[600px] sm-md:w-[400px] md:w-[500px] sm:w-[600px] w-80 leading-tight font-Inter text-heading text-center  sm-md:text-[50px] lg:text-[60px] 2xl:text-[80px] xl:text-[70px] sm:text-[70px] text-[30px]">
+        YOUR ART JOURNEY BEGINS HERE
+      </h1>
     </header>
-    )
+  )
 }
 export default function Home() {
   return (
