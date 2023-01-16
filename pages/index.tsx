@@ -7,16 +7,18 @@ import {AiFillHeart} from "react-icons/ai";
 import {AiOutlineHeart} from "react-icons/ai";
 import {IoIosArrowForward} from "react-icons/io";
 import {IoIosArrowBack} from "react-icons/io";
+import bg from "../public/card-bg.png";
+import icon from "../public/card-icon.png";
 
 const Card = ()=> {
   return (
-    <div className = "h-32 w-32 rounded-2xl bg-primary flex justify-center items-center">
-      <Image alt="cardimage" className = "w-full h-[60%]"/>
-      <AiFillHeart className = "text-md absolute shadow-glow color-interactive top-2 left-2" />
-      <Image alt="pfp" className = "absolute left-auto right-auto top-[50%] w-8 h-8 rounded-full border-primary shadow-glow border-primary"/>
-      <button className="p-4 bg-interactive text-white shadow-glow absolute right-2 top-[60%]"> ORDER </button>
-      <h1 className="font-Inter text-heading text-3xl">TonyArtZ</h1>
-      <h1 className="text-interactive mt-6 text-md"> 2D, 3D </h1>
+    <div className = "h-48 w-48 relative rounded-[25px] bg-primary flex flex-col  items-center">
+      <Image src={bg} alt="cardimage" className = "w-full h-24 rounded-t-[25px]"/>
+      <AiFillHeart className = "text-3xl absolute drop-shadow-glow text-interactive top-2 left-2" />
+      <Image src={icon} alt="pfp" className = "absolute left-auto right-auto top-16 w-14 h-14 rounded-full border-2 shadow-glow border-primary"/>
+      <button className="p-2 text-xs font-Inter bg-interactive text-white shadow-glow absolute right-2 top-14 rounded-2xl"> ORDER </button>
+      <h1 className="font-Inter text-heading pt-6 text-xl">TonyArtZ</h1>
+      <h1 className="text-interactive mt-1 text-md font-Inter"> 2D, 3D </h1>
     </div>
     )
 }
@@ -63,11 +65,13 @@ const Hero = () => {
 const FeaturedFeed = () => {
   return (
     <header className="w-screen 2xl:h-[870px] xl:h-[750px] sm:h-[600px] bg-featured bg-cover h-[300px] ">
-      <h1 className="xl:w-[600px] sm-md:w-[400px] md:w-[500px] sm:w-[600px] w-80 leading-tight font-Inter text-heading text-center  sm-md:text-[50px] lg:text-[60px] 2xl:text-[80px] xl:text-[70px] sm:text-[70px] text-[30px]">
+      <h1 className="text-xl font-Inter pt-6 pl-5">
         FEATURED ARTISTS
       </h1>
-      <section className= "flex w-full h-32 mt-5 justify-center items-center gap-3 flex-row">
+      <section className= "flex w-full h-32 mt-[70px] justify-center items-center gap-3 flex-row">
+        <IoIosArrowBack className="text-interactive drop-shadow-glowHigh text-5xl "/>
         <Card/>
+        <IoIosArrowForward className="text-interactive drop-shadow-glowHigh text-5xl "/>
       </section>
     </header>
   )
