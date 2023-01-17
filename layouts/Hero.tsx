@@ -2,7 +2,7 @@ import Image from "next/image";
 import artist from "../public/artist.png";
 import { FaSearch } from "react-icons/fa";
 import { BiMenu } from "react-icons/bi";
-
+import Link from 'next/link';
 const Hero = () => {
     return (
       <header className="w-screen 2xl:h-[870px] xl:h-[750px] sm:h-[600px] bg-hero bg-cover h-[300px] ">
@@ -26,9 +26,9 @@ const Hero = () => {
             </button>
           </div>
           <ul className="flex gap-2 2xl:gap-8 xl:gap-4 sm:mt-3 mt-2 flex-row absolute xl:right-24 sm:right-8 lg:right-12 right-4">
-            <li className="list-item lg:flex hidden">Become An Artist</li>
-            <li className="list-item sm:flex hidden">Sign In</li>
-            <li className="list-item">Join Us</li>
+            <Link href="" className="list-item lg:flex hidden">Become An Artist</Link>
+            <Link href="/signin"className="list-item sm:flex hidden">Sign In</Link>
+            <Link href="" className="list-item">Join Us</Link>
           </ul>
         </nav>
         <section className="flex z-10 flex-col 2xl:pt-72 xl:pt-64 sm:pt-32 pt-24 sm-md:pt-48 sm-md:pl-12 pl-0 justify-center sm-md:w-min w-full items-center">
