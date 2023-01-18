@@ -10,4 +10,8 @@
   .list-item {
     @apply text-interactive 2xl:text-xl xl:text-lg font-Inter hover:drop-shadow-glowHigh 2xl:hover:text-2xl hover:text-xl transition-all ease-in-out;
   }
+  
+  .input-field {
+    @apply w-80 h-12 border-interactive drop-shadow-glow border-solid border-[4px] rounded-3xl p-4 bg-secondary text-heading font-Inter outline-none
+  }
 }

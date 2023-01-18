@@ -10,11 +10,13 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="w-screen h-screen overflow-hidden flex justify-center items-center bg-secondary">
-        <section className=" h-96 w-full p-5 m-2 rounded-3xl bg-primary shadow-glow">
-          <div>
-            <h1> Sign-In</h1>
-            <input placeholder="Email" />
-            <input placeholder="Password" />
+        <section className=" h-96 w-96 p-8 m-2 rounded-3xl bg-primary drop-shadow-glow ">
+            <h1 className="text-4xl text-heading drop-shadow-glow font-Inter ">Sign-In</h1>
+          <div className="flex flex-col w-full h-fit justify-center items-center mt-10 gap-4">
+              <input className="input-field" placeholder="Email" type="email" />
+              <input className="input-field" placeholder="Password" type="password" />
+              <button className="btn-primary">Sign-In</button>
+              <p className="font-Inter mt-2 text-sm text-heading">Don't have an Account? <a href="" className="text-interactive text-md font-Inter drop-shadow-glowHigh underline">Register</a></p>
           </div>
         </section>
       </main>
