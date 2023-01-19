@@ -6,15 +6,17 @@
   .btn-primary {
     @apply bg-interactive sm:w-72 sm:h-24 h-16 w-40 rounded-3xl sm:mt-10 mt-2 text-white sm:text-3xl text-lg font-bold shadow-glow overflow-hidden relative before:h-96 before:w-32 before:translate-y-32 before:rotate-[30deg] before:absolute before:bg-white before:bottom-0 before:translate-x-[-180px] before:left-0 before:transition-all before:ease-in-out before:duration-300 hover:before:translate-x-96 hover:bg-secondary hover:border-4 hover:border-interactive hover:shadow-glowHigh hover:text-interactive transition-all ease-in duration-300;
   }
-
+  .btn-secondary {
+    @apply bg-interactive h-16 w-40 rounded-3xl mt-2 text-white text-lg font-bold shadow-glow overflow-hidden relative before:h-96 before:w-32 before:translate-y-32 before:rotate-[30deg] before:absolute before:bg-white before:bottom-0 before:translate-x-[-180px] before:left-0 before:transition-all before:ease-in-out before:duration-300 hover:before:translate-x-96 hover:bg-secondary hover:border-4 hover:border-interactive hover:shadow-glowHigh hover:text-interactive transition-all ease-in duration-300;
+  }
   .list-item {
     @apply text-interactive 2xl:text-xl xl:text-lg font-Inter hover:drop-shadow-glowHigh 2xl:hover:text-2xl hover:text-xl transition-all ease-in-out;
   }
-  
+
   .input-field {
-    @apply w-80 h-12 border-interactive drop-shadow-glow border-solid border-[4px] rounded-3xl p-4 bg-secondary text-heading font-Inter outline-none focus:drop-shadow-glowHigh transition-all ease-in-out duration-300 focus:border-[3px]
+    @apply w-80 h-12 xl:w-[450px] xl:h-[70px] xl:rounded-[32px] border-interactive drop-shadow-glow border-solid border-[4px] xl:border-[5px] rounded-3xl p-4 bg-secondary text-heading font-Inter outline-none focus:drop-shadow-glowHigh focus:border-[3px] xl:focus:border-[4px] transition-all ease-in-out duration-300;
   }
   .icon {
-    @apply h-16 flex bg-secondary border-solid border-2 p-1 border-interactive rounded-full w-16 relative drop-shadow-glow hover:h-20 hover:w-20 hover:drop-shadow-glowHigh hover:bg-white transition-all ease-in-out duration-300
+    @apply h-16 flex bg-secondary border-solid border-2 p-1 border-interactive rounded-full w-16 relative drop-shadow-glow hover:h-20 hover:w-20 hover:drop-shadow-glowHigh hover:bg-white transition-all ease-in-out duration-300;
   }
 }
