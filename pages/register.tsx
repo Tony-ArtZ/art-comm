@@ -54,7 +54,7 @@ export default function Home() {
                 type="password"
               />
               <button className="btn-secondary ">Register</button>
-              <p className="font-Inter mt-2 text-sm xl:text-xl xl:mt-16 text-heading">
+              <p className="font-Inter mt-2 text-sm xl:text-xl xl:mt-2 text-heading">
                 Already have an Account?{" "}
                 <Link
                   href="/register"
