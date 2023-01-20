@@ -57,7 +57,7 @@ export default function Home() {
               <p className="font-Inter mt-2 text-sm xl:text-xl xl:mt-2 text-heading">
                 Already have an Account?{" "}
                 <Link
-                  href="/register"
+                  href="/signin"
                   className="text-interactive text-md font-Inter drop-shadow-glowHigh underline"
                 >
                   Sign-in
