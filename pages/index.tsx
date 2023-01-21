@@ -1,8 +1,10 @@
 import Head from "next/head";
 import Hero from "../layouts/Hero";
 import FeaturedFeed from "../layouts/Featured";
+import supabase from "../lib/supabaseClient";
 
-export default function Home() {
+export default function Home({ user }) {
+  console.log(user);
   return (
     <>
       <Head>
@@ -12,8 +14,8 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="w-screen overflow-hidden">
-        <Hero/>
-        <FeaturedFeed/>
+        <Hero />
+        <FeaturedFeed />
       </main>
     </>
   );

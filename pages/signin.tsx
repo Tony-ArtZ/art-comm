@@ -10,7 +10,12 @@ export default function SignIn() {
 
   const [email, SetEmail] = useState("")
   const [password, SetPassword] = useState("")
- 
+
+ const signInWithGoogle = async () => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+  })
+}
   const supabaseSignIn = async () => {
     const { data, error } = await supabase.auth.signUp({
       email: email,
@@ -67,7 +72,7 @@ export default function SignIn() {
           </div>
         </section>
         <div className="mt-8">
-          <Image src={google} alt="google" className="icon" />
+          <Image src={google} alt="google" className="icon" onClick={()=>signInWithGoogle()}/>
         </div>
       </main>
     </>
