@@ -3,10 +3,19 @@ import Image from "next/image";
 import artist from "../public/artist-login.svg";
 import google from "../public/google.svg";
 import Link from "next/link";
-import supabase from "../lib/supabaseClient.ts"
+import supabase from "../lib/supabaseClient.ts";
+import {useState} from "react";
+
 export default function SignIn() {
-  const supabaseSignIn = (e) => {
-    console.error("bbb");
+
+  const [email, SetEmail] = useState("")
+  const [password, SetPassword] = useState("")
+ 
+  const supabaseSignIn = async () => {
+    const { data, error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+    });
   };
 
   return (
@@ -22,6 +31,7 @@ export default function SignIn() {
           <div className="w-96 h-96 xl:w-[520px] xl:h-[520px] hidden md:flex">
             <Image
               src={artist}
+              alt="artist"
               className="h-full w-full drop-shadow-glowHigh"
             />
           </div>
@@ -34,11 +44,12 @@ export default function SignIn() {
               id="signIn"
               onSubmit={supabaseSignIn()}
             >
-              <input className="input-field" placeholder="Email" type="email" />
+              <input className="input-field" placeholder="Email" type="email" onChange={(e)=>SetEmail(e.target.value)}/>
               <input
                 className="input-field"
                 placeholder="Password"
                 type="password"
+                onChange={(e)=>SetPassword(e.target.value)}
               />
               <button type="submit" form="signIn" className="btn-secondary">
                 Sign-In
