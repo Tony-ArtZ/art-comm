@@ -3,13 +3,15 @@ import Image from "next/image";
 import artist from "../public/artist-login.svg";
 import google from "../public/google.svg";
 import Link from "next/link";
-import supabase from "../lib/supabaseClient.ts";
 import {useState} from "react";
+import supabase from "../lib/supabaseClient.js";
+import { useRouter } from 'next/router'
 
 export default function SignIn() {
 
   const [email, SetEmail] = useState("")
   const [password, SetPassword] = useState("")
+  const { push } = useRouter()
 
  const signInWithGoogle = async () => {
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -17,10 +19,13 @@ export default function SignIn() {
   })
 }
   const supabaseSignIn = async () => {
-    const { data, error } = await supabase.auth.signUp({
+    event.preventDefault();
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
     });
+    if (!error){ push('/')}
+    else{console.log(error)}
   };
 
   return (
@@ -47,7 +52,7 @@ export default function SignIn() {
             <form
               className="flex flex-col w-full h-fit justify-center items-center mt-10 xl:mt-20 gap-4"
               id="signIn"
-              onSubmit={supabaseSignIn()}
+              onSubmit={()=>supabaseSignIn()}
             >
               <input className="input-field" placeholder="Email" type="email" onChange={(e)=>SetEmail(e.target.value)}/>
               <input
