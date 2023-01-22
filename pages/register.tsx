@@ -18,19 +18,27 @@ export default function Home() {
       provider: "google",
     });
   };
+
+  const updateUserData = async (uid) => {
+    const profilePicture = `https://ui-avatars.com/api/?name=${userName}&background=FFC3A1&color=ffffff`;
+    const updates = {
+      id: uid,
+      user_name: userName,
+      profile_picture: profilePicture,
+    };
+    let { error } = await supabase.from("Users").upsert(updates);
+    console.log(error);
+  };
+
   const supabaseSignUp = async () => {
     event.preventDefault();
     const { data, error } = await supabase.auth.signUp({
       email: email,
       password: password,
     });
+
     if (!error) {
-      console.log(data.user?.id);
-      const update = {
-        id: data.user?.id,
-        user_name : userName,
-      };
-      supabase.from("Users").upsert(update);
+      updateUserData(data.user?.id);
     } else {
       console.log(error);
     }
