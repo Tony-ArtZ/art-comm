@@ -3,8 +3,39 @@ import Image from "next/image";
 import artist from "../public/artist-login.svg";
 import google from "../public/google.svg";
 import Link from "next/link";
+import { useState } from "react";
+import supabase from "../lib/supabaseClient.js";
+import { useRouter } from "next/router";
 
 export default function Home() {
+  const [userName, SetUserName] = useState("");
+  const [email, SetEmail] = useState("");
+  const [password, SetPassword] = useState("");
+  const { push } = useRouter();
+
+  const signInWithGoogle = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+    });
+  };
+  const supabaseSignUp = async () => {
+    event.preventDefault();
+    const { data, error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+    });
+    if (!error) {
+      console.log(data.user?.id);
+      const update = {
+        id: data.user?.id,
+        user_name : userName,
+      };
+      supabase.from("Users").upsert(update);
+    } else {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <Head>
@@ -25,7 +56,11 @@ export default function Home() {
             <h1 className="text-4xl xl:text-[52px] text-heading drop-shadow-glow font-Inter ">
               Hello Friend!
             </h1>
-            <div className="flex flex-col w-full h-fit justify-center items-center mt-10 xl:mt-20 gap-4">
+            <form
+              id="register"
+              onSubmit={() => supabaseSignUp()}
+              className="flex flex-col w-full h-fit justify-center items-center mt-10 xl:mt-20 gap-4"
+            >
               {/*<label
                 htmlFor="profile-picture"
                 className=" h-32 w-32 flex rounded-full bg-secondary"
@@ -41,19 +76,28 @@ export default function Home() {
                 className="input-field"
                 placeholder="User Name"
                 type="text"
+                onChange={(e) => SetUserName(e.target.value)}
               />
-              <input className="input-field" placeholder="Email" type="email" />
+              <input
+                className="input-field"
+                placeholder="Email"
+                type="email"
+                onChange={(e) => SetEmail(e.target.value)}
+              />
               <input
                 className="input-field"
                 placeholder="Password"
                 type="password"
+                onChange={(e) => SetPassword(e.target.value)}
               />
               <input
                 className="input-field"
                 placeholder="Confirm Password"
                 type="password"
               />
-              <button className="btn-secondary ">Register</button>
+              <button type="submit" form="register" className="btn-secondary ">
+                Register
+              </button>
               <p className="font-Inter mt-2 text-sm xl:text-xl xl:mt-2 text-heading">
                 Already have an Account?{" "}
                 <Link
@@ -63,11 +107,16 @@ export default function Home() {
                   Sign-in
                 </Link>
               </p>
-            </div>
+            </form>
           </div>
         </section>
         <div className="mt-8">
-          <Image src={google} alt="google" className="icon" />
+          <Image
+            src={google}
+            alt="google"
+            className="icon"
+            onClick={() => signInWithGoogle()}
+          />
         </div>
       </main>
     </>
