@@ -26,7 +26,7 @@ export default function Home() {
       user_name: userName,
       profile_picture: profilePicture,
     };
-    let { error } = await supabase.from("Users").upsert(updates);
+    let { error } = await supabase.from("Users").upsert(updates).then(push('/'))
     console.log(error);
   };
 
