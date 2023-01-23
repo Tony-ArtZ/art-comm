@@ -3,6 +3,11 @@ import Hero from "../layouts/Hero";
 import FeaturedFeed from "../layouts/Featured";
 import supabase from "../lib/supabaseClient.js";
 import { useEffect, useState } from "react";
+import {
+  useSessionContext,
+  useSupabaseClient,
+  useUser,
+} from "@supabase/auth-helpers-react";
 
 const getUser = async (setUser) => {
   const {
@@ -12,9 +17,11 @@ const getUser = async (setUser) => {
   setUser(user);
 };
 export default function Home() {
-  const [user, setUser] = useState<any>(null);
+  //const [user, setUser] = useState<any>(null);
+  const supabaseClient = useSupabaseClient<any>();
+  const user = useUser();
   useEffect(() => {
-    getUser(setUser);
+    //getUser(setUser);
     console.log(user);
   }, []);
 

@@ -4,8 +4,16 @@ import { FaSearch } from "react-icons/fa";
 import { BiMenu } from "react-icons/bi";
 import Link from "next/link";
 import supabase from "../lib/supabaseClient.js";
+import { useRouter } from "next/router";
+import {
+  useSessionContext,
+  useSupabaseClient,
+  useUser,
+} from "@supabase/auth-helpers-react";
 
-const Hero = ({ user }) => {
+const Hero = () => {
+  const supabaseClient = useSupabaseClient<any>();
+  const user = useUser();
   return (
     <header className="w-screen 2xl:h-[870px] xl:h-[750px] sm:h-[600px] bg-hero bg-cover h-[300px] ">
       <Image
@@ -28,13 +36,13 @@ const Hero = ({ user }) => {
           </button>
         </div>
         <ul className="flex gap-2 2xl:gap-8 xl:gap-4 sm:mt-3 mt-2 flex-row absolute xl:right-24 sm:right-8 lg:right-12 right-4">
-          {user? (
+          {user ? (
             <>
-            <button onClick={()=>supabase.auth.signOut()}>
-            signout
-            </button>
+              <button onClick={() => supabaseClient.auth.signOut()}>
+                signout
+              </button>
             </>
-          ):(
+          ) : (
             <>
               <Link href="" className="list-item lg:flex hidden">
                 Become An Artist

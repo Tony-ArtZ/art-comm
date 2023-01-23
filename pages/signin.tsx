@@ -3,29 +3,36 @@ import Image from "next/image";
 import artist from "../public/artist-login.svg";
 import google from "../public/google.svg";
 import Link from "next/link";
-import {useState} from "react";
+import { useState } from "react";
 import supabase from "../lib/supabaseClient.js";
-import { useRouter } from 'next/router'
-
+import { useRouter } from "next/router";
+import {
+  useSessionContext,
+  useSupabaseClient,
+  useUser,
+} from "@supabase/auth-helpers-react";
 export default function SignIn() {
+  const [email, SetEmail] = useState("");
+  const [password, SetPassword] = useState("");
+  const { push } = useRouter();
+  const supabaseClient = useSupabaseClient<any>();
 
-  const [email, SetEmail] = useState("")
-  const [password, SetPassword] = useState("")
-  const { push } = useRouter()
-
- const signInWithGoogle = async () => {
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-  })
-}
+  const signInWithGoogle = async () => {
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+    });
+  };
   const supabaseSignIn = async () => {
     event.preventDefault();
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: email,
       password: password,
     });
-    if (!error){ push('/')}
-    else{console.log(error)}
+    if (!error) {
+      push("/");
+    } else {
+      console.error(error);
+    }
   };
 
   return (
@@ -52,14 +59,19 @@ export default function SignIn() {
             <form
               className="flex flex-col w-full h-fit justify-center items-center mt-10 xl:mt-20 gap-4"
               id="signIn"
-              onSubmit={()=>supabaseSignIn()}
+              onSubmit={() => supabaseSignIn()}
             >
-              <input className="input-field" placeholder="Email" type="email" onChange={(e)=>SetEmail(e.target.value)}/>
+              <input
+                className="input-field"
+                placeholder="Email"
+                type="email"
+                onChange={(e) => SetEmail(e.target.value)}
+              />
               <input
                 className="input-field"
                 placeholder="Password"
                 type="password"
-                onChange={(e)=>SetPassword(e.target.value)}
+                onChange={(e) => SetPassword(e.target.value)}
               />
               <button type="submit" form="signIn" className="btn-secondary">
                 Sign-In
@@ -77,7 +89,12 @@ export default function SignIn() {
           </div>
         </section>
         <div className="mt-8">
-          <Image src={google} alt="google" className="icon" onClick={()=>signInWithGoogle()}/>
+          <Image
+            src={google}
+            alt="google"
+            className="icon"
+            onClick={() => signInWithGoogle()}
+          />
         </div>
       </main>
     </>
