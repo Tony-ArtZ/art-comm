@@ -1,15 +1,15 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
+import { initializeApp } from "firebase/app";
 
-if (typeof window !== 'undefined' && !firebase.apps.length) {
+if (typeof window !== "undefined" && !firebase.apps.length) {
   firebase.initializeApp({
-    apiKey: 'APIKEY',
-    authDomain: 'myproject-123.firebaseapp.com',
-    databaseURL: 'https://myproject-123.firebaseio.com',
-    projectId: 'myproject-123',
-    storageBucket: 'myproject-123.appspot.com',
-    messagingSenderId: '123412341234',
-    appId: '1:1234123412341234:web:1234123421342134d',
+    apiKey: "AIzaSyDJRQ3bI8inw7V4wIl_ZCuHNh26HVnsmSE",
+    authDomain: "art-comm-97af9.firebaseapp.com",
+    projectId: "art-comm-97af9",
+    storageBucket: "art-comm-97af9.appspot.com",
+    messagingSenderId: "684469929856",
+    appId: "1:684469929856:web:7ab8426d637641c9a16365",
   });
   firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
 }

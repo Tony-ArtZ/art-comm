@@ -2,13 +2,22 @@ import Head from "next/head";
 import Image from "next/image";
 import artist from "../public/artist-login.svg";
 import google from "../public/google.svg";
+import { getAuth, getRedirectResult, GoogleAuthProvider } from "firebase/auth";
 import Link from "next/link";
 import { useState } from "react";
-
+import {firebase} from "../lib/firebaseClient"
 export default function SignIn() {
   const [email, SetEmail] = useState("");
   const [password, SetPassword] = useState("");
-
+  const googleProvider = new GoogleAuthProvider
+  const signIn = (e) => {
+  e.preventDefault()
+  firebase.auth().signInWithEmailAndPassword(email,password)
+  }
+  const signInGoogle = (e) => {
+  e.preventDefault()
+  firebase.auth().signInWithPopup(googleProvider)
+  }
   return (
     <>
       <Head>
@@ -46,7 +55,7 @@ export default function SignIn() {
                 type="password"
                 onChange={(e) => SetPassword(e.target.value)}
               />
-              <button type="submit" form="signIn" className="btn-secondary">
+              <button type="submit" form="signIn" className="btn-secondary" onClick={signIn}>
                 Sign-In
               </button>
               <p className="font-Inter mt-2 text-sm xl:text-xl xl:mt-16 text-heading">
@@ -66,6 +75,7 @@ export default function SignIn() {
             src={google}
             alt="google"
             className="icon"
+            onClick={signInGoogle}
           />
         </div>
       </main>
