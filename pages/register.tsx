@@ -4,7 +4,6 @@ import artist from "../public/artist-login.svg";
 import google from "../public/google.svg";
 import Link from "next/link";
 import { useState } from "react";
-import supabase from "../lib/supabaseClient.js";
 import { useRouter } from "next/router";
 
 export default function Home() {
@@ -12,37 +11,6 @@ export default function Home() {
   const [email, SetEmail] = useState("");
   const [password, SetPassword] = useState("");
   const { push } = useRouter();
-
-  const signInWithGoogle = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-    });
-  };
-
-  const updateUserData = async (uid) => {
-    const profilePicture = `https://ui-avatars.com/api/?name=${userName}&background=FFC3A1&color=ffffff`;
-    const updates = {
-      id: uid,
-      user_name: userName,
-      profile_picture: profilePicture,
-    };
-    let { error } = await supabase.from("Users").upsert(updates);
-    console.log(error);
-  };
-
-  const supabaseSignUp = async () => {
-    event.preventDefault();
-    const { data, error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-    });
-
-    if (!error) {
-      updateUserData(data.user?.id);
-    } else {
-      console.log(error);
-    }
-  };
 
   return (
     <>
@@ -57,6 +25,7 @@ export default function Home() {
           <div className="h-96 w-96 xl:w-[520px] xl:h-[520px] hidden md:flex">
             <Image
               src={artist}
+              alt="artist"
               className="h-full w-full drop-shadow-glowHigh"
             />
           </div>
@@ -66,7 +35,6 @@ export default function Home() {
             </h1>
             <form
               id="register"
-              onSubmit={() => supabaseSignUp()}
               className="flex flex-col w-full h-fit justify-center items-center mt-10 xl:mt-20 gap-4"
             >
               {/*<label
@@ -119,12 +87,7 @@ export default function Home() {
           </div>
         </section>
         <div className="mt-8">
-          <Image
-            src={google}
-            alt="google"
-            className="icon"
-            onClick={() => signInWithGoogle()}
-          />
+          <Image src={google} alt="google" className="icon" />
         </div>
       </main>
     </>

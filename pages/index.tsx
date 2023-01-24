@@ -1,29 +1,8 @@
 import Head from "next/head";
 import Hero from "../layouts/Hero";
 import FeaturedFeed from "../layouts/Featured";
-import supabase from "../lib/supabaseClient.js";
-import { useEffect, useState } from "react";
-import {
-  useSessionContext,
-  useSupabaseClient,
-  useUser,
-} from "@supabase/auth-helpers-react";
 
-const getUser = async (setUser) => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  console.log(user);
-  setUser(user);
-};
 export default function Home() {
-  //const [user, setUser] = useState<any>(null);
-  const supabaseClient = useSupabaseClient<any>();
-  const user = useUser();
-  useEffect(() => {
-    //getUser(setUser);
-    console.log(user);
-  }, []);
 
   return (
     <>
@@ -34,7 +13,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="w-screen overflow-hidden">
-        <Hero user={user} />
+        <Hero/>
         <FeaturedFeed />
       </main>
     </>

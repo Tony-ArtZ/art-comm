@@ -1,18 +1,17 @@
-import * as firebaseAdmin from 'firebase-admin';
+const admin = require("firebase-admin");
+const serviceAccount = require("./secrets.json");
 
-// get this JSON from the Firebase board
-// you can also store the values in environment variables
-import serviceAccount from './secret.json';
-
-if (!firebaseAdmin.apps.length) {
-  firebaseAdmin.initializeApp({
-    credential: firebaseAdmin.credential.cert({
-      privateKey: publicRuntimeConfig.PRIVATE_KEY,
-      clientEmail: publicRuntimeConfig.CLIENT_EMAIL,
-      projectId: publicRuntimeConfig.PRIVATE_KEY_ID,
-    }),
-    databaseURL: 'https://art-comm-97af9.firebaseio.com',
-  });
-}
-
-export { firebaseAdmin };
+export const VerifyIdToken = (token) => {
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      databaseURL: "https://art-comm-97af9.firebaseio.com",
+    });
+  }
+  return admin
+    .auth()
+    .VerifyIdToken(token)
+    .catch((error) => {
+      throw error;
+    });
+};

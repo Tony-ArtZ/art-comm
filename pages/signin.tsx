@@ -4,36 +4,10 @@ import artist from "../public/artist-login.svg";
 import google from "../public/google.svg";
 import Link from "next/link";
 import { useState } from "react";
-import supabase from "../lib/supabaseClient.js";
-import { useRouter } from "next/router";
-import {
-  useSessionContext,
-  useSupabaseClient,
-  useUser,
-} from "@supabase/auth-helpers-react";
+
 export default function SignIn() {
   const [email, SetEmail] = useState("");
   const [password, SetPassword] = useState("");
-  const { push } = useRouter();
-  const supabaseClient = useSupabaseClient<any>();
-
-  const signInWithGoogle = async () => {
-    const { data, error } = await supabaseClient.auth.signInWithOAuth({
-      provider: "google",
-    });
-  };
-  const supabaseSignIn = async () => {
-    event.preventDefault();
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
-    if (!error) {
-      push("/");
-    } else {
-      console.error(error);
-    }
-  };
 
   return (
     <>
@@ -59,7 +33,6 @@ export default function SignIn() {
             <form
               className="flex flex-col w-full h-fit justify-center items-center mt-10 xl:mt-20 gap-4"
               id="signIn"
-              onSubmit={() => supabaseSignIn()}
             >
               <input
                 className="input-field"
@@ -93,7 +66,6 @@ export default function SignIn() {
             src={google}
             alt="google"
             className="icon"
-            onClick={() => signInWithGoogle()}
           />
         </div>
       </main>
