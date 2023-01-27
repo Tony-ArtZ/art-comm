@@ -1,10 +1,14 @@
 import Head from "next/head";
 import Hero from "../layouts/Hero";
 import FeaturedFeed from "../layouts/Featured";
-import supabase from "../lib/supabaseClient.js";
-import { useEffect, useState } from "react";
+import {
+  createServerSupabaseClient,
+  User
+} from '@supabase/auth-helpers-nextjs';
+import { GetServerSidePropsContext } from 'next';
 
-export default function Home() {
+
+export default function Home({ user }: { user: User }) {
   return (
     <>
       <Head>
@@ -14,9 +18,28 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="w-screen overflow-hidden">
-        <Hero/>
+        <Hero user={user}/>
         <FeaturedFeed />
       </main>
     </>
   );
 }
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  // Create authenticated Supabase Client
+  const supabase = createServerSupabaseClient(ctx);
+  // Check if we have a session
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
+
+  if (!session)
+    return {props:{user:null}};
+
+  return {
+    props: {
+      initialSession: session,
+      user: session.user
+    }
+  };
+};

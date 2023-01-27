@@ -3,20 +3,23 @@ import artist from "../public/artist.png";
 import { FaSearch } from "react-icons/fa";
 import { BiMenu } from "react-icons/bi";
 import Link from "next/link";
-import { GetServerSidePropsContext } from 'next';
 import {
-  createServerSupabaseClient,
   User
 } from '@supabase/auth-helpers-nextjs';
 import {
-  useSessionContext,
   useSupabaseClient,
-  useUser,
 } from "@supabase/auth-helpers-react";
+import {useRouter} from "next/router";
 
 const Hero = ({user}: {user: User}) => {
+  const router = useRouter()
   const supabaseClient = useSupabaseClient();
   console.log(user?.email)
+  const signOut = (e:any)=> {
+    e.preventDefault()
+    supabaseClient.auth.signOut()
+    router.push('/')
+  }
 
   return (
     <header className="w-screen 2xl:h-[870px] xl:h-[750px] sm:h-[600px] bg-hero bg-cover h-[300px] ">
@@ -40,9 +43,9 @@ const Hero = ({user}: {user: User}) => {
           </button>
         </div>
         <ul className="flex gap-2 2xl:gap-8 xl:gap-4 sm:mt-3 mt-2 flex-row absolute xl:right-24 sm:right-8 lg:right-12 right-4">
-          {user? (
+          {user?.email? (
             <>
-            <button onClick={()=>supabaseClient.auth.signOut()}>
+            <button onClick={signOut}>
             signout
             </button>
             </>
@@ -73,30 +76,5 @@ const Hero = ({user}: {user: User}) => {
   );
 };
 
-export const getServerSideProps = async (ctx:GetServerSidePropsContext) => {
-  // Create authenticated Supabase Client
-  const supabase = createServerSupabaseClient(ctx)
-  // Check if we have a session
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+export default Hero
 
-  console.log(session)
-
-  if (!session)
-    return {
-      redirect: {
-        destination: '/signin',
-        permanent: false,
-      }
-    }
-
-  return {
-    props: {
-      initialSession: session,
-      user: session.user,
-    },
-  }
-}
-
-export default Hero;

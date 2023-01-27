@@ -15,21 +15,15 @@ export default function SignIn() {
   const [email, SetEmail] = useState("");
   const [password, SetPassword] = useState("");
   const { push } = useRouter();
+  const { isLoading, session, error } = useSessionContext();
   const supabaseClient = useSupabaseClient();
   const user = useUser();
-
-  useEffect(() => {
-    if (user) {
-      push('/');
-    }
-  }, [user]);
-
   
   const signInWithGoogle = async (e:any) => {
     e.preventDefault();
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
-      options: {redirectTo: 'http://localhost:3000'}
+      options: {redirectTo: '/'}
     });
   };
   const supabaseSignIn = async (e:any) => {
@@ -38,6 +32,9 @@ export default function SignIn() {
       email: email,
       password: password,
     });
+    if(!error){
+      push('/')
+    }
   };
 
   return (

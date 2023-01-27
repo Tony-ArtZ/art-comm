@@ -1,11 +1,11 @@
-import "../styles/globals.css";
-import type { AppProps } from "next/app";
 import {
   createBrowserSupabaseClient,
-  Session,
-} from "@supabase/auth-helpers-nextjs";
-import { SessionContextProvider } from "@supabase/auth-helpers-react";
-import { useEffect, useState } from "react";
+  Session
+} from '@supabase/auth-helpers-nextjs';
+import { SessionContextProvider } from '@supabase/auth-helpers-react';
+import type { AppProps } from 'next/app';
+import { useState } from 'react';
+import '../styles/globals.css';
 
 function MyApp({
   Component,
@@ -14,7 +14,6 @@ function MyApp({
   const [supabaseClient] = useState(() =>
     createBrowserSupabaseClient()
   );
-  // Create a new supabase browser client on every first render.
 
   return (
     <SessionContextProvider
