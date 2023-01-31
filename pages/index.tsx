@@ -8,7 +8,7 @@ import {
 import { GetServerSidePropsContext } from 'next';
 
 
-export default function Home({ user }: { user: User }) {
+export default function Home({ user, userData }: { user: User, userData:any }){
   return (
     <>
       <Head>
@@ -18,7 +18,7 @@ export default function Home({ user }: { user: User }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="w-screen overflow-hidden">
-        <Hero user={user}/>
+        <Hero user={user} userData={userData}/>
         <FeaturedFeed />
       </main>
     </>
@@ -33,13 +33,32 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     data: { session }
   } = await supabase.auth.getSession();
 
+  let userData = null
+
   if (!session)
     return {props:{user:null}};
+  else {
+  const { data, error } = await supabase
+  .from('Users')
+  .select()
+  .eq('id', session.user.id)
+  userData = data
+  console.log(data?.at(0)?.user_name)
+  if(!data){
+    const updates = {
+      id: session?.user.id,
+      user_name: session?.user.user_metadata.name,
+      profile_picture: session?.user.user_metadata.avatar_url
+    };
+    let { error } = await supabase.from('Users').upsert(updates)
+  }
+}
 
   return {
     props: {
       initialSession: session,
-      user: session.user
+      user: session.user,
+      userData: userData?.at(0)    
     }
   };
 };

@@ -11,10 +11,11 @@ import {
 } from "@supabase/auth-helpers-react";
 import {useRouter} from "next/router";
 
-const Hero = ({user}: {user: User}) => {
+const Hero = ({user, userData}: {user: User, userData:any}) => {
   const router = useRouter()
   const supabaseClient = useSupabaseClient();
-  console.log(user?.email)
+  console.log(user)
+
   const signOut = (e:any)=> {
     e.preventDefault()
     supabaseClient.auth.signOut()
@@ -43,10 +44,11 @@ const Hero = ({user}: {user: User}) => {
           </button>
         </div>
         <ul className="flex gap-2 2xl:gap-8 xl:gap-4 sm:mt-3 mt-2 flex-row absolute xl:right-24 sm:right-8 lg:right-12 right-4">
-          {user?.email? (
+          {user? (
             <>
-            <button onClick={signOut}>
-            signout
+            <h1 className="list-item">{userData?.user_name}</h1>
+            <button onClick={signOut} className="list-item">
+            Signout
             </button>
             </>
           ):(

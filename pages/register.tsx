@@ -17,22 +17,15 @@ export default function Home() {
   const [password, SetPassword] = useState("");
   const { push } = useRouter();
   const supabaseClient = useSupabaseClient();
-  const signInWithGoogle = async () => {
-    const { data, error } = await supabaseClient.auth.signInWithOAuth({
-      provider: "google",
-      options: {redirectTo: '/'}
-    });
-  };
 
-  const updateUserData = async (uid:Number) => {
-    const profilePicture = `https://ui-avatars.com/api/?name=${userName}&background=FFC3A1&color=ffffff`;
+  const updateUserData = async (uid:any, _userName:any, profilePicture:any) => {
     const updates = {
       id: uid,
-      user_name: userName,
+      user_name: _userName,
       profile_picture: profilePicture,
     };
     let { error } = await supabaseClient.from("Users").upsert(updates)
-    error?(push('/')):(console.log(error))
+    if (!error){ push('/')}
   };
 
   const supabaseSignUp = async (e:any) => {
@@ -41,13 +34,30 @@ export default function Home() {
       email: email,
       password: password,
     });
+    const profilePicture = `https://ui-avatars.com/api/?name=${userName}&background=FFC3A1&color=ffffff`;
 
     if (!error) {
-      updateUserData(data.user?.id);
+      updateUserData(data?.user?.id, userName,  data.user?.user_metadata.avatar_url);
     } else {
       console.log(error);
     }
-  };
+    }
+
+  const signInWithGoogle = async () => {
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {redirectTo: '/register'}
+    });
+
+    if (!error) {
+    const {data} = await supabaseClient.auth.getSession()
+    const session = data.session
+      updateUserData(session?.user?.id, session?.user?.user_metadata.name,  session?.user?.user_metadata.avatar_url);
+    } else {
+      console.log(error);
+  }
+  }
+
 
   return (
     <>
