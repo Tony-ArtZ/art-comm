@@ -46,7 +46,7 @@ const Hero = ({user, userData}: {user: User, userData:any}) => {
         <ul className="flex gap-2 2xl:gap-8 xl:gap-4 sm:mt-3 mt-2 flex-row absolute xl:right-24 sm:right-8 lg:right-12 right-4">
           {user? (
             <>
-            <h1 className="list-item">{userData?.user_name}</h1>
+            <Link href={`/profile/${user?.id}`} className="list-item">{userData?.user_name}</Link>
             <button onClick={signOut} className="list-item">
             Signout
             </button>
