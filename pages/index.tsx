@@ -1,14 +1,22 @@
 import Head from "next/head";
 import Hero from "../layouts/Hero";
-import FeaturedFeed from "../layouts/Featured";
+import FeaturedFeed from "../layouts/featured";
 import {
   createServerSupabaseClient,
   User
 } from '@supabase/auth-helpers-nextjs';
 import { GetServerSidePropsContext } from 'next';
+import {useEffect} from "react";
+import React from 'react'
 
 
 export default function Home({ user, userData }: { user: User, userData:any }){
+  
+  useEffect(()=>{console.log(user)},[user])
+  const test = (e:React.MouseEvent<HTMLButtonElement>)=>{
+    e.preventDefault()
+    console.log("hdh")
+  }
   return (
     <>
       <Head>
@@ -42,15 +50,24 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   .from('Users')
   .select()
   .eq('id', session.user.id)
-  userData = data
-  console.log(data?.at(0)?.user_name)
-  if(!data){
+  userData = data?.at(0)?data.at(0):null
+  console.log(data, error)
+  if(!userData){
     const updates = {
       id: session?.user.id,
       user_name: session?.user.user_metadata.name,
       profile_picture: session?.user.user_metadata.avatar_url
     };
     let { error } = await supabase.from('Users').upsert(updates)
+    if(!error){
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false
+      }
+    };
+
+    }
   }
 }
 
@@ -58,7 +75,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     props: {
       initialSession: session,
       user: session.user,
-      userData: userData?.at(0)    
+      userData: userData 
     }
   };
 };

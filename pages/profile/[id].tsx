@@ -6,9 +6,13 @@ import {
 import { GetServerSidePropsContext } from 'next';
 import {useRouter} from "next/router";
 import Image from "next/image";
+import {useState} from "react";
 
 export default function Home({ user, userData }: { user: User, userData:any }){
-  return (
+  const owner = userData.id == user.id
+  const [showingLikes, SetShowingLikes] = useState(true)
+  const inActiveButton = "border-4 border-solid btn-secondary bg-secondary border-interactive text-interactive hover:bg-interactive hover:border-0 hover:text-white" 
+ return (
     <>
       <Head>
         <title>ArtComm</title>
@@ -16,10 +20,15 @@ export default function Home({ user, userData }: { user: User, userData:any }){
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="w-screen overflow-hidden flex justify-center items-center">
-      <div className="w-screen h-64 bg-secondary flex justify-center">
-      <Image height="20" width="20" alt="profile" src={userData?.profile_picture} className="absolute ml-auto mr-auto rounded-full h-24 w-24 top-52 outline-8 drop-shadow-glow outline-primary outline" />
-        <h1>{userData.user_name}</h1> 
+      <main className="flex flex-col items-center w-screen h-screen overflow-hidden bg-primary">
+      <div className="flex justify-center w-screen h-64 bg-secondary">
+        { userData.banner_picture && <Image height="256" width="256" alt="banner" className="object-cover w-full h-full" src={userData.banner_picture}/>}
+        <Image height="64" width="64" alt="profile" src={userData?.profile_picture} className="absolute w-24 h-24 ml-auto mr-auto rounded-full top-52 outline-8 drop-shadow-glow outline-primary outline" />
+      </div>
+      <h1 className="mt-20 text-3xl text-heading font-Inter">{userData.user_name}</h1>
+      <div className="flex justify-center w-full mt-6 gap-2">
+        <button className={`btn-secondary ${!showingLikes?inActiveButton:""}`} onClick={()=>SetShowingLikes(true)}>Likes</button>
+        <button className={`btn-secondary ${showingLikes?inActiveButton:""}`} onClick={()=>SetShowingLikes(false)}>Comments</button>
       </div>
       </main>
     </>
