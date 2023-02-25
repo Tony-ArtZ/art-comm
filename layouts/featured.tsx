@@ -9,7 +9,7 @@ const FeaturedFeed = () => {
   const nextArtist = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     console.log("hi");
-    if (currentArtist !== 6) {
+    if (currentArtist !== 4) {
       SetCurrentArtist((prev: number) => prev + 1);
     } else {
       SetCurrentArtist(0);
@@ -20,7 +20,7 @@ const FeaturedFeed = () => {
   const prevArtist = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (currentArtist === 0) {
-      SetCurrentArtist(6);
+      SetCurrentArtist(4);
     } else {
       SetCurrentArtist((prev: number) => prev - 1);
     }
@@ -39,10 +39,10 @@ const FeaturedFeed = () => {
         >
           <IoIosArrowBack />
         </button>
-        <div className="flex w-full h-full overflow-hidden">
+        <div className="flex w-[12rem] h-full overflow-hidden">
           <div
-            className="flex flex-row w-full h-full gap-2"
-            style={{ transform: `translateX(${-132 * currentArtist}px)` }}
+            className="flex flex-row w-full h-full transition-all duration-300"
+            style={{ transform: `translateX(${-12 * currentArtist}rem)` }}
           >
             <Cards />
             <Cards />

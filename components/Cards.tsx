@@ -6,7 +6,7 @@ import icon from "../public/card-icon.png";
 
 const Cards = () => {
   return (
-        <div className = "h-48 w-48 md:h-64 md:w-64 lg:w-80 lg:h-80 2xl:h-96 2xl:w-96 relative rounded-[25px] bg-primary flex flex-col min-w-max items-center drop-shadow-glow">
+        <div className = "h-48 w-48 md:h-64 md:w-64 lg:w-80 lg:h-80 2xl:h-96 2xl:w-96 relative rounded-[25px] bg-primary flex flex-col flex-shrink-0 items-center drop-shadow-glow">
           <Image src={bg} alt="cardimage" className = "w-full h-24 md:h-36 lg:h-44 rounded-t-[25px]"/>
           <AiFillHeart className = "absolute text-3xl md:text-4xl drop-shadow-glow text-interactive top-2 left-2 md:left-4 md:top-4"/>
           <Image src={icon} alt="pfp" className = "absolute left-auto right-auto border-2 rounded-full top-16 w-14 h-14 md:h-16 md:w-16 md:top-28 lg:h-20 lg:w-20 lg:top-32 shadow-glow border-primary"/>

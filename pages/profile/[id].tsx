@@ -12,7 +12,20 @@ export default function Home({ user, userData }: { user: User, userData:any }){
   const owner = userData.id == user.id
   const [showingLikes, SetShowingLikes] = useState(true)
   const inActiveButton = "border-4 border-solid btn-secondary bg-secondary border-interactive text-interactive hover:bg-interactive hover:border-0 hover:text-white" 
- return (
+  const userDescription = userData?.description;
+  const [descriptionChange, SetDescriptionChange] = useState<Boolean>(false)
+
+  const updateDescription = (e:React.ChangeEvent<HTMLTextAreaElement>)=>{
+    if(userDescription !== e.target.value){
+      SetDescriptionChange(true);
+    }
+    else{
+      SetDescriptionChange(false);
+    }
+  }
+
+
+  return (
     <>
       <Head>
         <title>ArtComm</title>
@@ -26,6 +39,8 @@ export default function Home({ user, userData }: { user: User, userData:any }){
         <Image height="64" width="64" alt="profile" src={userData?.profile_picture} className="absolute w-24 h-24 ml-auto mr-auto rounded-full top-52 outline-8 drop-shadow-glow outline-primary outline" />
       </div>
       <h1 className="mt-20 text-3xl text-heading font-Inter">{userData.user_name}</h1>
+      <textarea className="h-24 mt-2 text-center bg-transparent text-heading w-80" onChange={updateDescription} readOnly={!owner}>{userData.description?userData.description:"No description"}</textarea>
+        <button className={` ${descriptionChange?"opacity-100":"opacity-0"} transition-all duration-300 btn-secondary `}>Update</button>
       <div className="flex justify-center w-full mt-6 gap-2">
         <button className={`btn-secondary ${!showingLikes?inActiveButton:""}`} onClick={()=>SetShowingLikes(true)}>Likes</button>
         <button className={`btn-secondary ${showingLikes?inActiveButton:""}`} onClick={()=>SetShowingLikes(false)}>Comments</button>
