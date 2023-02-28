@@ -31,8 +31,9 @@ export default function Home({ user, userData }: { user: User, userData:any }){
     const uploadImage = async (e:React.ChangeEvent<HTMLInputElement>)=>{
      console.log("fg")
       const imageBlob = e.target.files![0]
-      const path = `ssdd.png`
-      const {data, error} = await supabase.storage.from('avatars').upload(path, imageBlob)
+      const path = `public/${userData.id}.png`
+      const {data, error} = await supabase.storage.from('avatars').upload(path, imageBlob, {upsert: true})
+      console.log(data,error)
     }
 
   const postDescriptionChange = (e: React.MouseEvent<HTMLButtonElement>)=>{
@@ -57,7 +58,7 @@ export default function Home({ user, userData }: { user: User, userData:any }){
       <main className="flex flex-col items-center w-screen h-screen overflow-hidden bg-primary">
       <div className="flex justify-center w-screen h-64 bg-secondary">
         { userData.banner_picture && <Image height="256" width="256" alt="banner" className="object-cover w-full h-full" src={userData.banner_picture}/>}
-        <input type="file" accept="image" id="imageSelect" onChange={uploadImage} className="absolute z-10"/>
+        <input type="file" accept=".png,.jpg" id="imageSelect" onChange={uploadImage} className="absolute z-10"/>
         <label htmlFor="imageSelect" className="absolute z-20 flex items-center justify-center w-8 h-8 ml-16 text-white rounded-full bg-interactive top-52"><FiEdit className=""/></label>
         <Image height="64" width="64" alt="profile" src={userData?.profile_picture} className="absolute w-24 h-24 ml-auto mr-auto rounded-full top-52 outline-8 drop-shadow-glow outline-primary outline" />
       </div>
