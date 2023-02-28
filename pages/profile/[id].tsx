@@ -7,23 +7,44 @@ import { GetServerSidePropsContext } from 'next';
 import {useRouter} from "next/router";
 import Image from "next/image";
 import {useState} from "react";
+import {FiEdit} from "react-icons/fi"
+import {useSupabaseClient} from "@supabase/auth-helpers-react";
 
 export default function Home({ user, userData }: { user: User, userData:any }){
+  const supabase = useSupabaseClient();
   const owner = userData.id == user.id
   const [showingLikes, SetShowingLikes] = useState(true)
   const inActiveButton = "border-4 border-solid btn-secondary bg-secondary border-interactive text-interactive hover:bg-interactive hover:border-0 hover:text-white" 
-  const userDescription = userData?.description;
+  let userDescription = userData?.description;
   const [descriptionChange, SetDescriptionChange] = useState<Boolean>(false)
 
   const updateDescription = (e:React.ChangeEvent<HTMLTextAreaElement>)=>{
     if(userDescription !== e.target.value){
       SetDescriptionChange(true);
+      userDescription = e.target.value;
     }
     else{
       SetDescriptionChange(false);
     }
   }
 
+    const uploadImage = async (e:React.ChangeEvent<HTMLInputElement>)=>{
+     console.log("fg")
+      const imageBlob = e.target.files![0]
+      const path = `ssdd.png`
+      const {data, error} = await supabase.storage.from('avatars').upload(path, imageBlob)
+    }
+
+  const postDescriptionChange = (e: React.MouseEvent<HTMLButtonElement>)=>{
+   e.preventDefault() 
+  fetch("http://localhost:3000/api/update/details",
+        {
+          method: 'POST',
+          body: JSON.stringify({description: userDescription})
+        }
+       ).then((response)=>response.json())
+       .then((data:any)=>{console.log(data.response)})
+  }
 
   return (
     <>
@@ -36,11 +57,13 @@ export default function Home({ user, userData }: { user: User, userData:any }){
       <main className="flex flex-col items-center w-screen h-screen overflow-hidden bg-primary">
       <div className="flex justify-center w-screen h-64 bg-secondary">
         { userData.banner_picture && <Image height="256" width="256" alt="banner" className="object-cover w-full h-full" src={userData.banner_picture}/>}
+        <input type="file" accept="image" id="imageSelect" onChange={uploadImage} className="absolute z-10"/>
+        <label htmlFor="imageSelect" className="absolute z-20 flex items-center justify-center w-8 h-8 ml-16 text-white rounded-full bg-interactive top-52"><FiEdit className=""/></label>
         <Image height="64" width="64" alt="profile" src={userData?.profile_picture} className="absolute w-24 h-24 ml-auto mr-auto rounded-full top-52 outline-8 drop-shadow-glow outline-primary outline" />
       </div>
       <h1 className="mt-20 text-3xl text-heading font-Inter">{userData.user_name}</h1>
-      <textarea className="h-24 mt-2 text-center bg-transparent text-heading w-80" onChange={updateDescription} readOnly={!owner}>{userData.description?userData.description:"No description"}</textarea>
-        <button className={` ${descriptionChange?"opacity-100":"opacity-0"} transition-all duration-300 btn-secondary `}>Update</button>
+      <textarea className="h-24 mt-3 font-sans text-center text-gray-800 bg-transparent font-bolder w-80" onChange={updateDescription} readOnly={!owner}>{userData.description?userData.description:"No description"}</textarea>
+        <button onClick={postDescriptionChange} className={` ${descriptionChange?"opacity-100":"opacity-0"} transition-all duration-300 btn-secondary `}>Update</button>
       <div className="flex justify-center w-full mt-6 gap-2">
         <button className={`btn-secondary ${!showingLikes?inActiveButton:""}`} onClick={()=>SetShowingLikes(true)}>Likes</button>
         <button className={`btn-secondary ${showingLikes?inActiveButton:""}`} onClick={()=>SetShowingLikes(false)}>Comments</button>
