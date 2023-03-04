@@ -27,6 +27,8 @@ const Hero = ({user, userData}: {user: User, userData:any}) => {
       <Image
         src={artist}
         alt="artist"
+        placeholder="blur"
+        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAADXUAAA11AFeZeUIAAABXklEQVQYGQ2Qy2oaUQBAj9N7R+ehNOpoxGpsMISsSqFdBEK/pb/UH+g/ZJlVFw0EkkWoDRTSPIqNRjrVinNHr/Ps7M/hwCl9/XSa/yg7bFM4MDRLKdFxTKJSRP0lh1aOuJ8iLsoNjEad8K/PuOEQuB30dEHgZKxn//jjSgZNDxFbLhVKhDrHLgTTlDyoAKtcwm4LgkRiejYi2kaMp4owWJGNcrwsZN8MeZhvUJmk39tFqhjDy9b0Oiab+ZzF1SV7/h0fjvd5M2ihbn9z82VEKwwQwyLzzWnSHb5GPid0Xzkkeco2C5isVphxBZsE8T2IeFzO2OnYzHLB56cFb90q59e/SO0Ke4fvuMZAnDQEu2nMz8kd/njEC88jCTVHtR1q3TZ1rRk+rRDvLYM+Md2yYLN0eS5ytzePfCygQaKwsohqqhFqveFs4pPUS7R6xUNfIatNanqLF60xXAv6bf4D/GKcUkXKFHYAAAAASUVORK5CYII="
         className="absolute right-8 lg:right-32 2xl:top-20 xl:top-32 sm:top-32 hidden sm-md:flex 2xl:h-[780px] xl:h-[600px] sm:h-[450px] 2xl:w-[780px] xl:w-[600px] sm:w-[450px] animate-float"
       />
       <nav className="absolute flex flex-row justify-between w-screen px-4 py-5 sm:bg-none md:shadow-none bg-secondary sm:px-8">

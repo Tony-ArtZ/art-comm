@@ -21,3 +21,4 @@
     @apply h-16 flex bg-secondary border-solid border-2 p-1 border-interactive rounded-full w-16 relative drop-shadow-glow hover:h-20 hover:w-20 hover:drop-shadow-glowHigh hover:bg-white transition-all ease-in-out duration-300
   }
 }
+

@@ -20,7 +20,13 @@ const nextConfig = {
        hostname: 'ui-avatars.com',
        port: '',
        pathname: '/api/**',
-      }, 
+      },
+      {
+       protocol: 'https',
+       hostname: 'wybevfopeppmmtlbjqtt.supabase.co',
+       port: '',
+       pathname: '/storage/v1/object/public/**',
+      }
     ],
   },
 }
