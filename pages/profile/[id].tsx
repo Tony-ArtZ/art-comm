@@ -271,9 +271,9 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
      likes = await supabase
       .from("Users")
       .select(
-        '*,Likes!inner(liked_by)'
+        `*,Likes!Likes_liked_by_fkey(liked)`
       )
-      .eq("Likes.liked_by", accountId);
+      .eq("Likes(liked_by)", accountId);
       console.log(JSON.stringify(LikeData))
   }
 //SELECT * FROM "Users", "Likes" WHERE "Users".id = "Likes".liked AND "Likes".liked_by = 'f3a468e8-8dbe-42df-a1b2-cac9ad285c09'
