@@ -5,7 +5,7 @@ import {json} from 'stream/consumers';
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
 
 type Data = {
-  isLiked: boolean,
+  response: string
 }
 
 export default async function  handler(
@@ -18,26 +18,18 @@ export default async function  handler(
     const {
     data: { session }
   } = await supabase.auth.getSession();
+
   if (!session)
     return res.status(401)
 
-  const {data:LikeData}:any = await supabase.from('Likes').select('*').match({liked_by: session.user.id, liked: body.likedId})
-  const isLiked:boolean = !!LikeData[0]
-
   switch (requestMethod){
     case 'POST':
-      if(!isLiked){
-    const { error } = await supabase
-  .from('Likes')
-  .upsert({ liked_by: session.user.id, liked: body.likedId})
+      const { error } = await supabase
+  .from('Users')
+  .update({ description: body.description})
+  .eq('id', session.user.id)
   console.log(error)
-
-    }
-    else{
-      const {error} = await supabase.from('Likes').delete().match({ liked_by: session.user.id, liked: body.likedId})
-    }
-    return res.status(200).json({isLiked: isLiked})
-
+      res.status(200).json({ response: `you request was ${body.description}, get it together, baby`})
       break;
     default:
       res.status(405);

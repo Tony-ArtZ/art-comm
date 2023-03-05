@@ -13,7 +13,7 @@ import {useSupabaseClient} from "@supabase/auth-helpers-react";
 import { ToastContainer, toast, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function Home({ user, userData, accountId }: { user: User, userData:any, accountId:string }){
+export default function Home({ user, userData, accountId, isLiked}: { user: User, userData:any, accountId:string, isLiked: boolean}){
   const supabase = useSupabaseClient();
   const router = useRouter();
   const owner = userData.id == user.id
@@ -22,7 +22,7 @@ export default function Home({ user, userData, accountId }: { user: User, userDa
   let userDescription = userData?.description;
   const [descriptionChange, SetDescriptionChange] = useState<Boolean>(false)
   
-  const [Liked, SetLiked] = useState<boolean>(false)
+  const [Liked, SetLiked] = useState<boolean>(isLiked)
 
   const updateDescription = (e:React.ChangeEvent<HTMLTextAreaElement>)=>{
     if(userDescription !== e.target.value){
@@ -35,13 +35,13 @@ export default function Home({ user, userData, accountId }: { user: User, userDa
   }
 
     const updateLike = async ()=>{
-  fetch("http://localhost:3000/api/update/accounts",
+  fetch("http://localhost:3000/api/update/addLike",
         {
           method: 'POST',
           body: JSON.stringify({likedId: accountId})
         }
        ).then((response)=>response.json())
-       .then((data:any)=>{toast.success("Like"); router.push(`/profile/${userData.id}`)})
+       .then((data:any)=>{toast.info(isLiked?"Removed from Likes":"Liked"); router.push(`/profile/${userData.id}`)})
     }
 
     const uploadImage = async (e:React.ChangeEvent<HTMLInputElement>)=>{
@@ -149,7 +149,10 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     data: { session }
   } = await supabase.auth.getSession();
 
-  let userData = null
+  let userData = null;
+
+  const accountId = ctx?.params?.id
+  let isLiked:boolean = false
 
   if (!session)
     return {props:{user:null}};
@@ -157,8 +160,12 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const { data, error } = await supabase
   .from('Users')
   .select()
-  .eq('id', ctx?.params?.id)
+  .eq('id', accountId)
   userData = data
+
+
+  const {data:LikeData}:any = await supabase.from('Likes').select('*').match({liked_by: session.user.id, liked: accountId })
+  isLiked = !!LikeData[0]
 }
 
 return {
@@ -166,7 +173,8 @@ return {
       initialSession: session,
       user: session.user,
       userData: userData?.at(0),    
-      accountId: ctx?.params?.id
+      accountId: accountId,
+      isLiked: isLiked
     }
   };
 };
