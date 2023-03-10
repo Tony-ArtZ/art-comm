@@ -1,3 +1,4 @@
+//@format
 import Head from "next/head";
 import {
   createServerSupabaseClient,
@@ -6,7 +7,7 @@ import {
 import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
@@ -19,12 +20,14 @@ export default function Home({
   accountId,
   isLiked,
   likes,
+  likeCount
 }: {
   user: User;
   userData: any;
   accountId: string;
   isLiked: boolean;
   likes: any;
+  likeCount: number;
 }) {
   const supabase = useSupabaseClient();
   const router = useRouter();
@@ -32,19 +35,27 @@ export default function Home({
   const [showingLikes, SetShowingLikes] = useState(true);
   const inActiveButton =
     "border-4 border-solid btn-secondary bg-secondary border-interactive text-interactive hover:bg-interactive hover:border-0 hover:text-white";
-  let userDescription = userData?.description;
+  const [userDescription, SetUserDescription] = useState<string>(userData?.description);
   const [descriptionChange, SetDescriptionChange] = useState<Boolean>(false);
-  console.log(likes)
+  console.log(likeCount);
   const [Liked, SetLiked] = useState<boolean>(isLiked);
+  useEffect(()=>{
+    SetLiked(isLiked)
+    SetDescriptionChange(false)
+    SetShowingLikes(true)
+    SetUserDescription(userData?.description) 
+  }
+    ,[isLiked, userData.description]       )
+  console.log(userDescription, userData.description)
 
   const updateDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (userDescription !== e.target.value) {
       SetDescriptionChange(true);
-      userDescription = e.target.value;
+      SetUserDescription( e.target.value);
     } else {
       SetDescriptionChange(false);
     }
-  };
+    };
 
   const updateLike = async () => {
     fetch("http://localhost:3000/api/update/addLike", {
@@ -172,13 +183,14 @@ export default function Home({
           )}
           {!owner && (
             <div
-              className="absolute text-5xl drop-shadow-glowHigh top-3 left-3 text-interactive"
+              className="absolute text-5xl text-center align-middle drop-shadow-glowHigh top-3 left-3 text-interactive"
               onClick={() => {
                 SetLiked((prev) => !prev);
                 updateLike();
               }}
             >
               {Liked ? <AiFillHeart /> : <AiOutlineHeart />}
+              <h1 className="text-sm text-interactive font-Inter"> {likeCount} {likeCount>1?"Likes":"Like"}</h1>
             </div>
           )}
           <Image
@@ -195,17 +207,17 @@ export default function Home({
           {userData.user_name}
         </h1>
         <textarea
-          className="h-24 mt-3 font-sans text-center text-gray-800 bg-transparent outline-none font-bolder w-80"
+          className="flex-shrink-0 h-24 mt-3 font-sans text-center text-gray-800 bg-transparent outline-none font-bolder w-80"
           onChange={updateDescription}
           readOnly={!owner}
+          value={userDescription}
         >
-          {userData.description ? userData.description : "No description"}
         </textarea>
         <button
           onClick={postDescriptionChange}
           className={` ${
             descriptionChange ? "opacity-100" : "hidden"
-          } transition-all duration-300 btn-secondary `}
+          } transition-all flex-shrink-0 duration-300 btn-secondary `}
         >
           Update
         </button>
@@ -222,6 +234,37 @@ export default function Home({
           >
             Comments
           </button>
+        </div>
+        <div className="flex flex-col w-full p-4 pt-6 gap-2">
+          {showingLikes ? (
+            likes.map((likedUserData: any) => {
+              return (
+                <div
+                  onClick={() =>
+                    router.push(`/profile/${likedUserData.Users.id}`)
+                  }
+                  className="flex flex-row items-center w-full h-20 px-3 border-4 border-solid bg-secondary rounded-3xl border-interactive drop-shadow-glow"
+                >
+                  <Image
+                    src={likedUserData.Users.profile_picture}
+                    height={32}
+                    width={32}
+                    alt="profile"
+                    placeholder="blur"
+                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAGCAYAAAD68A/GAAAACXBIWXMAADXUAAA11AFeZeUIAAAAo0lEQVQIHS2OsW7DMAxEH0VKdtOl//83XbpkzVJkLroGCZCisCXm7EQAgaP4jkf7/Tymh+NvE3FoeKvgjvF6LxF+T0pNvAx8YyaHPsjeYaRoleDg2rGW2FA39L0I0NB2UDpl2sD/y5+SjH4zohkWe/LTsKzYupKqOJ1/dlfzQlVq0dr3JlrDDfK+6pSF+Dp/a3tHDLUYswwf88wkXS2pOsMV/wD+v0XbEuUSvAAAAABJRU5ErkJggg=="
+                    className="object-cover rounded-full outline-4 outline-primary drop-shadow-glow outline h-14 w-14"
+                  />
+                  <div className="flex flex-col h-full p-4">
+                    <h1 className="text-lg font-Inter text-heading">
+                      {likedUserData.Users.user_name}
+                    </h1>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <></>
+          )}
         </div>
         <ToastContainer
           transition={Slide}
@@ -252,7 +295,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
   const accountId = ctx?.params?.id;
   let isLiked: boolean = false;
-  let likes:any = null;
+  let likes: any = null;
 
   if (!session) return { props: { user: null } };
   else {
@@ -262,21 +305,21 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       .eq("id", accountId);
     userData = data;
 
-    const { data: LikeData }: any = await supabase
+    const { data: LikeStatusData }: any = await supabase
       .from("Likes")
       .select("*")
       .match({ liked_by: session.user.id, liked: accountId });
-    isLiked = !!LikeData[0];
+    isLiked = !!LikeStatusData[0];
 
-     likes = await supabase
-      .from("Users")
-      .select(
-        `*,Likes!Likes_liked_by_fkey(liked)`
-      )
-      .eq("Likes(liked_by)", accountId);
-      console.log(JSON.stringify(LikeData))
-  }
-//SELECT * FROM "Users", "Likes" WHERE "Users".id = "Likes".liked AND "Likes".liked_by = 'f3a468e8-8dbe-42df-a1b2-cac9ad285c09'
+    const { data: likesData } = await supabase
+      .from("Likes")
+      .select(`Users!Likes_liked_fkey(id, user_name, profile_picture)`)
+      .eq("liked_by", accountId);
+
+      const {count: likeCount} = await supabase.from("Likes").select("*", {count: "exact", head: true}).eq("liked", accountId)
+     console.log(likeCount)
+    likes = likesData;
+  //SELECT * FROM "Users", "Likes" WHERE "Users".id = "Likes".liked AND "Likes".liked_by = 'f3a468e8-8dbe-42df-a1b2-cac9ad285c09'
   return {
     props: {
       initialSession: session,
@@ -285,6 +328,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       accountId: accountId,
       isLiked: isLiked,
       likes: likes,
+      likeCount: likeCount
     },
   };
+  }
 };
