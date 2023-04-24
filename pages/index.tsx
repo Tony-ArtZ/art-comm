@@ -60,12 +60,12 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     };
     let { error } = await supabase.from('Users').upsert(updates)
     if(!error){
-    return {
+    /*return {
       redirect: {
         destination: '/',
         permanent: false
       }
-    };
+      };*/
 
     }
   }

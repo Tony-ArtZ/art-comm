@@ -5,6 +5,7 @@ import bg from "../public/card-bg.png";
 import icon from "../public/card-icon.png";
 
 const Cards = () => {
+
   return (
         <div className = "h-48 w-48 md:h-64 md:w-64 lg:w-80 lg:h-80 2xl:h-96 2xl:w-96 relative rounded-[25px] bg-primary flex flex-col flex-shrink-0 items-center drop-shadow-glow">
           <Image src={bg} alt="cardimage" className = "w-full h-24 md:h-36 lg:h-44 rounded-t-[25px]"/>
@@ -14,7 +15,7 @@ const Cards = () => {
           <h1 className="pt-6 text-xl font-Inter text-heading md:text-2xl md:pt-8 lg:text-3xl">TonyArtZ</h1>
           <h1 className="mt-1 text-interactive text-md md:text-xl md:mt-2 lg:text-2xl lg:mt-4 font-Inter"> 2D, 3D </h1>
         </div>
-  )
+        )
 }
 
 export default Cards

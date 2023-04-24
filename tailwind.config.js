@@ -28,6 +28,7 @@ module.exports = {
         glow: "4px 7px 10px rgba(255, 130, 130, 0.5)",
         glowLow: "4px 4px 5px rgba(255, 130, 130, 0.5)",
         glowHigh: "8px 8px 20px rgba(255, 130, 130, 0.8)",
+        glowInsetLow: "inset 2px 2px 3px 3px rgba(255, 130, 130, 0.3)",
       },
       dropShadow: {
         glow: "4px 7px 10px rgba(255, 130, 130, 0.5)",

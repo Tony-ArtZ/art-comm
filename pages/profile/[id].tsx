@@ -13,6 +13,7 @@ import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CreatePost from "../../components/CreatePost";
 
 export default function Home({
   user,
@@ -20,7 +21,7 @@ export default function Home({
   accountId,
   isLiked,
   likes,
-  likeCount
+  likeCount,
 }: {
   user: User;
   userData: any;
@@ -32,30 +33,31 @@ export default function Home({
   const supabase = useSupabaseClient();
   const router = useRouter();
   const owner = userData.id == user.id;
+  const isArtist = userData.artist;
   const [showingLikes, SetShowingLikes] = useState(true);
   const inActiveButton =
     "border-4 border-solid btn-secondary bg-secondary border-interactive text-interactive hover:bg-interactive hover:border-0 hover:text-white";
-  const [userDescription, SetUserDescription] = useState<string>(userData?.description);
+  const [userDescription, SetUserDescription] = useState<string>(
+    userData?.description
+  );
   const [descriptionChange, SetDescriptionChange] = useState<Boolean>(false);
   console.log(likeCount);
   const [Liked, SetLiked] = useState<boolean>(isLiked);
-  useEffect(()=>{
-    SetLiked(isLiked)
-    SetDescriptionChange(false)
-    SetShowingLikes(true)
-    SetUserDescription(userData?.description) 
-  }
-    ,[isLiked, userData.description]       )
-  console.log(userDescription, userData.description)
+  useEffect(() => {
+    SetLiked(isLiked);
+    SetDescriptionChange(false);
+    SetShowingLikes(true);
+    SetUserDescription(userData?.description);
+  }, [isLiked, userData.description]);
 
   const updateDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (userDescription !== e.target.value) {
       SetDescriptionChange(true);
-      SetUserDescription( e.target.value);
+      SetUserDescription(e.target.value);
     } else {
       SetDescriptionChange(false);
     }
-    };
+  };
 
   const updateLike = async () => {
     fetch("http://localhost:3000/api/update/addLike", {
@@ -190,7 +192,10 @@ export default function Home({
               }}
             >
               {Liked ? <AiFillHeart /> : <AiOutlineHeart />}
-              <h1 className="text-sm text-interactive font-Inter"> {likeCount} {likeCount>1?"Likes":"Like"}</h1>
+              <h1 className="text-sm text-interactive font-Inter">
+                {" "}
+                {likeCount} {likeCount > 1 ? "Likes" : "Like"}
+              </h1>
             </div>
           )}
           <Image
@@ -211,8 +216,7 @@ export default function Home({
           onChange={updateDescription}
           readOnly={!owner}
           value={userDescription}
-        >
-        </textarea>
+        ></textarea>
         <button
           onClick={postDescriptionChange}
           className={` ${
@@ -221,7 +225,15 @@ export default function Home({
         >
           Update
         </button>
-        <div className="flex justify-center w-full mt-6 gap-2">
+        {owner && !isArtist &&(
+          <button
+            className="flex-shrink-0 w-48 p-4 text-sm btn-secondary"
+            onClick={() => router.push("/becomeartist")}
+          >
+            Become An Artist Now!
+          </button>
+        )}
+        <div className="flex justify-center w-full mt-12 gap-2">
           <button
             className={`btn-secondary ${!showingLikes ? inActiveButton : ""}`}
             onClick={() => SetShowingLikes(true)}
@@ -237,9 +249,10 @@ export default function Home({
         </div>
         <div className="flex flex-col w-full p-4 pt-6 gap-2">
           {showingLikes ? (
-            likes.map((likedUserData: any) => {
+            likes.map((likedUserData: any, index: number) => {
               return (
                 <div
+                  key={index}
                   onClick={() =>
                     router.push(`/profile/${likedUserData.Users.id}`)
                   }
@@ -266,6 +279,7 @@ export default function Home({
             <></>
           )}
         </div>
+      <CreatePost onClick={()=>{router.push('/createcommissionpost')}}/>
         <ToastContainer
           transition={Slide}
           theme="colored"
@@ -316,20 +330,23 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       .select(`Users!Likes_liked_fkey(id, user_name, profile_picture)`)
       .eq("liked_by", accountId);
 
-      const {count: likeCount} = await supabase.from("Likes").select("*", {count: "exact", head: true}).eq("liked", accountId)
-     console.log(likeCount)
+    const { count: likeCount } = await supabase
+      .from("Likes")
+      .select("*", { count: "exact", head: true })
+      .eq("liked", accountId);
+    console.log(likeCount);
     likes = likesData;
-  //SELECT * FROM "Users", "Likes" WHERE "Users".id = "Likes".liked AND "Likes".liked_by = 'f3a468e8-8dbe-42df-a1b2-cac9ad285c09'
-  return {
-    props: {
-      initialSession: session,
-      user: session.user,
-      userData: userData?.at(0),
-      accountId: accountId,
-      isLiked: isLiked,
-      likes: likes,
-      likeCount: likeCount
-    },
-  };
+    //SELECT * FROM "Users", "Likes" WHERE "Users".id = "Likes".liked AND "Likes".liked_by = 'f3a468e8-8dbe-42df-a1b2-cac9ad285c09'
+    return {
+      props: {
+        initialSession: session,
+        user: session.user,
+        userData: userData?.at(0),
+        accountId: accountId,
+        isLiked: isLiked,
+        likes: likes,
+        likeCount: likeCount,
+      },
+    };
   }
 };
