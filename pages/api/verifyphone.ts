@@ -40,10 +40,8 @@ export default async function handler(
           code: verificationCode,
         });
       if (verificationCheck.status === "approved") {
-        console.log("FUXKXKXKXKXKXKXKKX")
-        const {error:artistTableError} = await supabase.from('Artists').insert({id: session.user.id, phone_number: phoneNumber, verified: true})
-        const {error:userUpdateError} = await supabase.from('Users').update({artist: true}).eq('id', session.user.id)
-        console.log(artistTableError, userUpdateError)
+        const {error:userUpdateError} = await supabase.from('Users').update({verified: true, artist: true, phone_number:phoneNumber}).eq('id', session.user.id)
+        console.log(userUpdateError)
         res.status(200).json({ success: true, error: null });
       } else {
         res.status(400).json({ success: false, error: null });

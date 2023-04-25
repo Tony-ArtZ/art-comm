@@ -30,7 +30,7 @@ export default async function  handler(
   .update({[body.field]: body.value})
   .eq('id', session.user.id)
   console.log(error)
-      res.status(200).json({ response: `you request was ${body.description}, get it together, baby`})
+      res.status(200).json({ response: `Success`})
       break;
     default:
       res.status(405);

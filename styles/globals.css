@@ -2,15 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.slick-dots li button:before {
-  color: #EF798A!important;
-}
-
-.slick-prev:before, .slick-next:before {
-display: none;
-}
-
-
 @layer components {
   .btn-primary {
     @apply bg-interactive sm:w-72 sm:h-24 h-16 w-40 rounded-3xl sm:mt-10 mt-2 text-white sm:text-3xl text-lg font-bold shadow-glow overflow-hidden relative before:h-96 before:w-32 before:translate-y-32 before:rotate-[30deg] before:absolute before:bg-white before:bottom-0 before:translate-x-[-180px] before:left-0 before:transition-all before:ease-in-out before:duration-300 hover:before:translate-x-96 hover:bg-secondary hover:border-4 hover:border-interactive hover:shadow-glowHigh hover:text-interactive transition-all ease-in duration-300;

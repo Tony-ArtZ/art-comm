@@ -25,7 +25,7 @@ export default function Home({ user, userData }: { user: User, userData:any }){
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="w-screen overflow-hidden">
+      <main className="w-screen overflow-hidden bg-primary">
         <Hero user={user} userData={userData}/>
         <FeaturedFeed />
       </main>

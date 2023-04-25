@@ -12,12 +12,13 @@ import MultiSelect from "../components/MultiSelect";
 export default function SignIn() {
   const router = useRouter();
 
-  const [fullName, SetFullName] = useState("")
+  const [fullName, SetFullName] = useState("");
   const [phoneNumber, SetPhoneNumber] = useState<string>("");
   const [otp, setOtp] = useState("");
   const [otpSent, SetOTPSent] = useState(false);
   const [verified, SetVerified] = useState(false);
-  const [selectedOptions, SetSelectedOptions] = useState<(string|null)[]>([""])
+  const [selectedOptions, SetSelectedOptions] = useState<string[] | null>([""]);
+
   const catagory = [
     { key: "2D", value: 1, selected: false },
     { key: "3D", value: 2, selected: false },
@@ -58,23 +59,21 @@ export default function SignIn() {
   };
 
   const postArtistData = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     const data = {
       name: fullName,
       phoneNumber: phoneNumber,
-      categories: selectedOptions
-    }
+      categories: selectedOptions,
+    };
 
-    fetch("/api/saveArtistData", {method: "POST", body: JSON.stringify(data)})
-    .then((res)=> res.json())
-    .then((data)=>{
+    fetch("/api/saveartistdata", { method: "POST", body: JSON.stringify(data) })
+      .then((res) => res.json())
+      .then((data) => {console.log(data["message"])});
+  };
 
-    })
-  }
-
-  const selectedOptionsChangeHandler = (options:  (string|null)[]) => {
-    SetSelectedOptions(options)
-    console.log(selectedOptions)
-  }
+  const selectedOptionsChangeHandler = (options: string[] | null) => {
+    SetSelectedOptions(options);
+  };
 
   return (
     <>
@@ -100,7 +99,7 @@ export default function SignIn() {
             <form
               onSubmit={postArtistData}
               className="flex flex-col items-center justify-center w-full mt-10 h-fit xl:mt-20 gap-4"
-              id="signIn"
+              id="becomeArtist"
             >
               <div className="relative">
                 <label className="z-20 bottom-9 left-7 text-interactive drop-shadow-glow font-Inter">
@@ -108,10 +107,28 @@ export default function SignIn() {
                 </label>
                 <input
                   onChange={(e) => SetFullName(e.target.value)}
-                  className="input-field"
+                  className="input-field peer"
                   placeholder="Full Name"
+                  pattern="[A-Za-z0-9\s]{3,}"
+                  required
                   type="text"
                 />
+            <p className="hidden mt-1 text-sm text-interactive peer-invalid:block">
+            *Title must be longer than 3 characters.
+            </p>
+              </div>
+              <div className="relative">
+                <label className="z-20 bottom-9 left-7 text-interactive drop-shadow-glow font-Inter">
+                  Art Categories:
+                </label>
+
+                <MultiSelect
+                  catagory={catagory}
+                  onChangeSelectionHandler={selectedOptionsChangeHandler}
+                />
+                <h1 className="mt-4 text-xs text-center text-interactive font-Inter">
+                  *More selected catagories will lead to less discovery
+                </h1>
               </div>
               <div className="relative w-full">
                 <Phone
@@ -121,7 +138,10 @@ export default function SignIn() {
                   <label className="z-20 bottom-9 left-7 text-interactive drop-shadow-glow font-Inter">
                     Country:
                   </label>
-                  <Phone.Country disabled={verified} className="p-2 text-sm input-field" />
+                  <Phone.Country
+                    disabled={verified}
+                    className="p-2 text-sm input-field"
+                  />
                   <label className="z-20 bottom-9 left-7 text-interactive drop-shadow-glow font-Inter">
                     Phone Number:
                   </label>
@@ -151,7 +171,7 @@ export default function SignIn() {
                       }
                       renderInput={(props) => (
                         <input
-                          {...props} 
+                          {...props}
                           className="border-4 font-Inter border-solid rounded-full min-w-[3rem] h-12 text-heading border-interactive drop-shadow-glow bg-secondary"
                         />
                       )}
@@ -165,9 +185,12 @@ export default function SignIn() {
                   </>
                 )}
               </div>
-              {!verified &&
-                (otpSent ? (
-                  <button onClick={verifyCode} form="signIn" className="btn-secondary">
+              {verified ? (
+                otpSent ? (
+                  <button
+                    onClick={verifyCode}
+                    className="btn-secondary"
+                  >
                     Verify
                   </button>
                 ) : (
@@ -177,26 +200,17 @@ export default function SignIn() {
                   >
                     Send OTP
                   </button>
-                ))}
-
-              {verified && (
-                <>
-                <div className="relative">
-                  <label className="z-20 bottom-9 left-7 text-interactive drop-shadow-glow font-Inter">
-                    Art Categories:
-                  </label>
-
-                  <MultiSelect catagory={catagory} onChangeSelectionHandler={selectedOptionsChangeHandler}/>
-                  <h1 className="mt-4 text-xs text-center text-interactive font-Inter">
-                    *More selected catagories will lead to less discovery
-                  </h1>
-
-                </div>
-                  <button type="submit" className="btn-secondary">
-                    Submit
-                  </button>
-                </>
+                )
+              ) : (
+                <button
+                  type="submit"
+                  form="becomeArtist"
+                  className="btn-secondary"
+                >
+                  Submit
+                </button>
               )}
+
             </form>
           </div>
         </section>

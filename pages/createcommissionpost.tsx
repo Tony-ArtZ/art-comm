@@ -2,6 +2,7 @@ import { ReactElement, use, useEffect, useState } from "react";
 import { IoImagesOutline } from "react-icons/io5";
 import { BiDollar } from "react-icons/bi";
 import MultiSelect from "../components/MultiSelect";
+import Image from "next/image";
 
 interface catagoryItem {
   key: string;
@@ -104,10 +105,10 @@ const CommissionCard = ({
               </h1>
             </div>
           ) : (
-            <img
+            <Image
+              alt="previewImage"
               src={imagePreview}
-              height="auto"
-              width="auto"
+              fill
               className="border-4 border-solid rounded-xl border-interactive"
             />
           )}

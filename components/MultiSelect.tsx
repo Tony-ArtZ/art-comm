@@ -7,7 +7,7 @@ interface catagoryItemType {
   selected: boolean
 }
 
-type onChangeSelectionHandlerType =  (args:(string|null)[]) => void
+type onChangeSelectionHandlerType =  (args:string[]|null) => void
 const SelectedElement = ({catagoryItem, clickEvent}:{catagoryItem: catagoryItemType, clickEvent:(object:catagoryItemType)=>void}) => {
   return (
     <button onClick={(e)=>clickEvent(catagoryItem)} className="p-1 px-2 min-w-[4rem] border-4 border-solid text-sm rounded-full bg-secondary border-interactive text-heading shadow-glowLow font-Inter">
@@ -20,16 +20,19 @@ const SelectedElement = ({catagoryItem, clickEvent}:{catagoryItem: catagoryItemT
 export default function MultiSelect({catagory, onChangeSelectionHandler}:{catagory: catagoryItemType[], onChangeSelectionHandler: onChangeSelectionHandlerType }) {
 
   const [catagoryList, SetCatagoryList] = useState( catagory )
-  useEffect(()=>{
-    const selectedOptions:(string|null)[] = catagoryList?.map((option)=>{
-      if(option.selected) {
-        return option.key
+  
+  const updateSelectedOptions = () => {
+    let selectedOptions:string[] = []
+    
+    for(let i = 0; i < catagoryList.length; i++) {
+      console.log(catagoryList)
+      if(catagoryList[i].selected) {
+        selectedOptions.push(catagoryList[i].key)
       }
-      return null
-    })
+    }
 
     onChangeSelectionHandler(selectedOptions)
-  }, [catagoryList])
+  }
 
   const handleDropdownChange = (selectedOption: catagoryItemType) => {
     const updatedCatagoryList = catagoryList.map((option)=>{
@@ -38,8 +41,8 @@ export default function MultiSelect({catagory, onChangeSelectionHandler}:{catago
         }
       return option
       })
-    console.log(updatedCatagoryList)
 
+      updateSelectedOptions()
     SetCatagoryList(updatedCatagoryList)
   }
 
