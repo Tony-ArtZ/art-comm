@@ -1,4 +1,4 @@
-import {useState} from "react"
+import {useEffect, useState} from "react"
 import {IoIosClose} from "react-icons/io"
 
 interface catagoryItemType {
@@ -7,6 +7,7 @@ interface catagoryItemType {
   selected: boolean
 }
 
+type onChangeSelectionHandlerType =  (args:(string|null)[]) => void
 const SelectedElement = ({catagoryItem, clickEvent}:{catagoryItem: catagoryItemType, clickEvent:(object:catagoryItemType)=>void}) => {
   return (
     <button onClick={(e)=>clickEvent(catagoryItem)} className="p-1 px-2 min-w-[4rem] border-4 border-solid text-sm rounded-full bg-secondary border-interactive text-heading shadow-glowLow font-Inter">
@@ -16,9 +17,20 @@ const SelectedElement = ({catagoryItem, clickEvent}:{catagoryItem: catagoryItemT
   )
 }
 
-export default function MultiSelect({catagory}:{catagory: catagoryItemType[]}) {
+export default function MultiSelect({catagory, onChangeSelectionHandler}:{catagory: catagoryItemType[], onChangeSelectionHandler: onChangeSelectionHandlerType }) {
 
   const [catagoryList, SetCatagoryList] = useState( catagory )
+  useEffect(()=>{
+    const selectedOptions:(string|null)[] = catagoryList?.map((option)=>{
+      if(option.selected) {
+        return option.key
+      }
+      return null
+    })
+
+    onChangeSelectionHandler(selectedOptions)
+  }, [catagoryList])
+
   const handleDropdownChange = (selectedOption: catagoryItemType) => {
     const updatedCatagoryList = catagoryList.map((option)=>{
      if(selectedOption.key === option.key) {
@@ -30,6 +42,7 @@ export default function MultiSelect({catagory}:{catagory: catagoryItemType[]}) {
 
     SetCatagoryList(updatedCatagoryList)
   }
+
   return (
     <div className="w-full grid place-items-center">
       <section className="flex flex-wrap mb-2 gap-2">{

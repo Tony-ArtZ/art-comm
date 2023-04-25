@@ -1,30 +1,28 @@
 import Head from "next/head";
 import Image from "next/image";
 import artist from "../public/artist-login.svg";
-import google from "../public/google.svg";
-import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { Phone } from "react-telephone";
-import {
-  useSessionContext,
-  useSupabaseClient,
-  useUser,
-} from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
 import OtpInput from "react-otp-input";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import MultiSelect from "../components/MultiSelect";
 
 export default function SignIn() {
-  const supabaseClient = useSupabaseClient();
-  const user = useUser();
   const router = useRouter();
 
+  const [fullName, SetFullName] = useState("")
   const [phoneNumber, SetPhoneNumber] = useState<string>("");
-  const [otp, setOtp] = useState<string>("");
-  const [otpSent, SetOTPSent] = useState<boolean>(false);
-
+  const [otp, setOtp] = useState("");
+  const [otpSent, SetOTPSent] = useState(false);
+  const [verified, SetVerified] = useState(false);
+  const [selectedOptions, SetSelectedOptions] = useState<(string|null)[]>([""])
+  const catagory = [
+    { key: "2D", value: 1, selected: false },
+    { key: "3D", value: 2, selected: false },
+    { key: "Chibi", value: 3, selected: false },
+  ];
   /*if(!user){
     router.push('/createaccount')
     }*/
@@ -44,18 +42,38 @@ export default function SignIn() {
       });
   };
 
-  const verifyCode = (e: React.FormEvent<HTMLFormElement>) => {
+  const verifyCode = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     fetch("/api/verifyphone", {
       method: "POST",
-      body: JSON.stringify({ phoneNumber: phoneNumber, code: otp, }),
+      body: JSON.stringify({ phoneNumber: phoneNumber, code: otp }),
     })
       .then((res) => res.json())
       .then((data) => {
         if (!data.error) {
-          toast.success("Verified!")
+          toast.success("Verified!");
+          SetVerified(true);
         }
       });
+  };
+
+  const postArtistData = (e: React.FormEvent<HTMLFormElement>) => {
+    const data = {
+      name: fullName,
+      phoneNumber: phoneNumber,
+      categories: selectedOptions
+    }
+
+    fetch("/api/saveArtistData", {method: "POST", body: JSON.stringify(data)})
+    .then((res)=> res.json())
+    .then((data)=>{
+
+    })
+  }
+
+  const selectedOptionsChangeHandler = (options:  (string|null)[]) => {
+    SetSelectedOptions(options)
+    console.log(selectedOptions)
   }
 
   return (
@@ -80,7 +98,7 @@ export default function SignIn() {
               Become An Artist
             </h1>
             <form
-              onSubmit={verifyCode}
+              onSubmit={postArtistData}
               className="flex flex-col items-center justify-center w-full mt-10 h-fit xl:mt-20 gap-4"
               id="signIn"
             >
@@ -89,6 +107,7 @@ export default function SignIn() {
                   Full Name:
                 </label>
                 <input
+                  onChange={(e) => SetFullName(e.target.value)}
                   className="input-field"
                   placeholder="Full Name"
                   type="text"
@@ -102,17 +121,18 @@ export default function SignIn() {
                   <label className="z-20 bottom-9 left-7 text-interactive drop-shadow-glow font-Inter">
                     Country:
                   </label>
-                  <Phone.Country className="p-2 text-sm input-field" />
+                  <Phone.Country disabled={verified} className="p-2 text-sm input-field" />
                   <label className="z-20 bottom-9 left-7 text-interactive drop-shadow-glow font-Inter">
                     Phone Number:
                   </label>
                   <Phone.Number
+                    disabled={verified}
                     placeholder="Phone Number"
-                    className="w-full input-field"
+                    className="w-full input-field disabled:text-opacity-60 disabled:text-black disabled:bg-opacity-75 disabled:border-opacity-80"
                   />
                 </Phone>
 
-                {otpSent && (
+                {otpSent && !verified && (
                   <>
                     <label className="z-20 bottom-9 left-7 text-interactive drop-shadow-glow font-Inter">
                       Enter OTP:
@@ -131,26 +151,51 @@ export default function SignIn() {
                       }
                       renderInput={(props) => (
                         <input
-                          {...props}
+                          {...props} 
                           className="border-4 font-Inter border-solid rounded-full min-w-[3rem] h-12 text-heading border-interactive drop-shadow-glow bg-secondary"
                         />
                       )}
                     />
-                    <button onClick={sendVerificationCode} className="w-full mt-4 font-bold text-center underline text-interactive">Resend OTP</button>
+                    <button
+                      onClick={sendVerificationCode}
+                      className="w-full mt-4 font-bold text-center underline text-interactive"
+                    >
+                      Resend OTP
+                    </button>
                   </>
                 )}
               </div>
-              {otpSent ? (
-                <button type="submit" form="signIn" className="btn-secondary">
-                  Verify
-                </button>
-              ) : (
-                <button
-                  onClick={sendVerificationCode}
-                  className="btn-secondary"
-                >
-                  Send OTP
-                </button>
+              {!verified &&
+                (otpSent ? (
+                  <button onClick={verifyCode} form="signIn" className="btn-secondary">
+                    Verify
+                  </button>
+                ) : (
+                  <button
+                    onClick={sendVerificationCode}
+                    className="btn-secondary"
+                  >
+                    Send OTP
+                  </button>
+                ))}
+
+              {verified && (
+                <>
+                <div className="relative">
+                  <label className="z-20 bottom-9 left-7 text-interactive drop-shadow-glow font-Inter">
+                    Art Categories:
+                  </label>
+
+                  <MultiSelect catagory={catagory} onChangeSelectionHandler={selectedOptionsChangeHandler}/>
+                  <h1 className="mt-4 text-xs text-center text-interactive font-Inter">
+                    *More selected catagories will lead to less discovery
+                  </h1>
+
+                </div>
+                  <button type="submit" className="btn-secondary">
+                    Submit
+                  </button>
+                </>
               )}
             </form>
           </div>

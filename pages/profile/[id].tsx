@@ -10,7 +10,6 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CreatePost from "../../components/CreatePost";
@@ -30,34 +29,27 @@ export default function Home({
   likes: any;
   likeCount: number;
 }) {
-  const supabase = useSupabaseClient();
   const router = useRouter();
   const owner = userData.id == user.id;
   const isArtist = userData.artist;
   const [showingLikes, SetShowingLikes] = useState(true);
   const inActiveButton =
     "border-4 border-solid btn-secondary bg-secondary border-interactive text-interactive hover:bg-interactive hover:border-0 hover:text-white";
-  const [userDescription, SetUserDescription] = useState<string>(
-    userData?.description
-  );
-  const [descriptionChange, SetDescriptionChange] = useState<Boolean>(false);
   console.log(likeCount);
   const [Liked, SetLiked] = useState<boolean>(isLiked);
   useEffect(() => {
     SetLiked(isLiked);
-    SetDescriptionChange(false);
     SetShowingLikes(true);
-    SetUserDescription(userData?.description);
-  }, [isLiked, userData.description]);
+  }, [isLiked]);
 
-  const updateDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+ /* const updateDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (userDescription !== e.target.value) {
       SetDescriptionChange(true);
       SetUserDescription(e.target.value);
     } else {
       SetDescriptionChange(false);
     }
-  };
+    };*/
 
   const updateLike = async () => {
     fetch("http://localhost:3000/api/update/addLike", {
@@ -75,10 +67,10 @@ export default function Home({
     const imageBlob = e.target.files![0];
     toast.info("Uploading Image...");
     const path = `${userData.id}/avatar.png`;
-    const { data, error } = await supabase.storage
-      .from("profile")
-      .upload(path, imageBlob, { upsert: true });
-    console.log(data, error);
+    //const { data, error } = await supabase.storage
+      //.from("profile")
+      //.upload(path, imageBlob, { upsert: true });
+    //console.log(data, error);
     fetch("http://localhost:3000/api/update/profile", {
       method: "POST",
       body: JSON.stringify({
@@ -97,10 +89,10 @@ export default function Home({
     const imageBlob = e.target.files![0];
     const path = `${userData.id}/banner.png`;
     toast.info("Uploading Image...");
-    const { data, error } = await supabase.storage
-      .from("profile")
-      .upload(path, imageBlob, { upsert: true });
-    console.log(data, error);
+    //const { data, error } = await supabase.storage
+      //.from("profile")
+      //.upload(path, imageBlob, { upsert: true });
+    //console.log(data, error);
 
     fetch("http://localhost:3000/api/update/profile", {
       method: "POST",
@@ -116,7 +108,7 @@ export default function Home({
       });
   };
 
-  const postDescriptionChange = (e: React.MouseEvent<HTMLButtonElement>) => {
+  /*const postDescriptionChange = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     fetch("http://localhost:3000/api/update/profile", {
       method: "POST",
@@ -129,7 +121,7 @@ export default function Home({
         router.push(`/profile/${userData.id}`);
       });
     SetDescriptionChange(false);
-  };
+    };*/
 
   return (
     <>
@@ -146,42 +138,11 @@ export default function Home({
               height="256"
               width="256"
               alt="banner"
-              className="object-cover w-full h-full"
+              className="object-cover w-full h-full max-h-full min-h-full"
               placeholder="blur"
               blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAADXUAAA11AFeZeUIAAAC9klEQVQ4ER2TSXIbZRiGn+7+e9BgDbEtO8bBKRYU3sGGA1AsYMEdWHABKhfI3bJIkR0BFrFDxdjGlmQNjdSDeuZtVUlVf0/fO37Wq1e/Nl9/8y0vPn/JoNenbipcv0dVVWBZGMehahr007/mcTpjPptRliWuY/P27RtdT4mSmM02wnFd83q1eKKualarBdvNlqZuWCyWpEmC63kYY6jrmtl8zvX1Bz5+vGK5XFBpaJZlHE9OODqaEHS6OI5xXk9ncx4eHliuVqzX6z27m5tbVuGa0WjEQb9PVhT89u4dd/e3uK6njwOGejYcjTl5foYfdLFsGxMEHSmzSfKceFcQZCXXtw94fsC2iLm+ueP4+Ig4jvcMTp+f44u1HwTssnwP9PjPHYnUFAI1SboTTYeBY8irksZyWMcJY69D1wuosVlvIuaLlWQds1yH9Ps90t2OefhEkiYaFgswaU3GbHXoS1I7KOgPKC32Mo3rcjAc0Dvocztd0BGrBgtbzBcCKOWp2+3RSBnGpdPTWffMy8tLDgYjDienDPfG9giUtm08rBZILLsdXwMaYn0Q24ZEIeVFSSKAWMpSDazVCFUEY/e6FJ5u7hmAHGW2jel0IPdLDiT5ROjT/zaEZc1UEktVKoojNlGkAJV0XZHnBU0pD6frFUEaE0l/J0np9ofqkkcmj6JtSNcq+e6rL/CNxdXv7wnDEM/zcYHAhkTBJOslUbSlLnJMKg9q28FJMw3K5OuGydEJSbylK79Oh2NySXEcl0244uHfexUdHDWjLXubbCl25S4j3YSYSEV2LcPxYExnMMRXOS8vLpgtFkwOD3lxesZGLBq989nhhD/+es+nuxtc+WYJpBaYpw42WozWAuunn39pLr+85EKr1zJtk3w2HhO1dZL5fQXUrl8tOk+y5+rT31qCe2y92/p49eFPLUNILm+LLMX8+P0PnJ+dEwilUIqFDK811lfhc51bS0qZXulZpSTbYo+fHe0rEmtgsYtZPr4hXj7tQ/kfCAepOXDiiT4AAAAASUVORK5CYII="
               src={userData.banner_picture}
             />
-          )}
-          {owner && (
-            <>
-              <input
-                type="file"
-                accept=".png,.jpg"
-                id="bannerSelect"
-                onChange={uploadBanner}
-                className="absolute hidden -z-20"
-              />
-              <label
-                htmlFor="bannerSelect"
-                className="absolute z-20 flex items-center justify-center w-8 h-8 text-white rounded-full right-3 bg-interactive top-2"
-              >
-                <FiEdit className="" />
-              </label>
-
-              <input
-                type="file"
-                accept=".png,.jpg"
-                id="imageSelect"
-                onChange={uploadImage}
-                className="absolute hidden -z-20"
-              />
-              <label
-                htmlFor="imageSelect"
-                className="absolute z-20 flex items-center justify-center w-8 h-8 ml-16 text-white rounded-full bg-interactive top-52"
-              >
-                <FiEdit className="" />
-              </label>
-            </>
           )}
           {!owner && (
             <div
@@ -211,29 +172,19 @@ export default function Home({
         <h1 className="mt-20 text-3xl text-heading font-Inter">
           {userData.user_name}
         </h1>
-        <textarea
-          className="flex-shrink-0 h-24 mt-3 font-sans text-center text-gray-800 bg-transparent outline-none font-bolder w-80"
-          onChange={updateDescription}
-          readOnly={!owner}
-          value={userDescription}
-        ></textarea>
-        <button
-          onClick={postDescriptionChange}
-          className={` ${
-            descriptionChange ? "opacity-100" : "hidden"
-          } transition-all flex-shrink-0 duration-300 btn-secondary `}
-        >
-          Update
-        </button>
+        <text 
+          className="mt-3 mb-5 font-sans text-center text-gray-800 fh-24 font-bolder w-80">
+          {userData?.description}
+        </text>
         {owner && !isArtist &&(
           <button
-            className="flex-shrink-0 w-48 p-4 text-sm btn-secondary"
+            className="flex-shrink-0 w-48 p-4 mb-2 text-sm btn-secondary"
             onClick={() => router.push("/becomeartist")}
           >
             Become An Artist Now!
           </button>
         )}
-        <div className="flex justify-center w-full mt-12 gap-2">
+        <div className="flex justify-center w-full gap-2">
           <button
             className={`btn-secondary ${!showingLikes ? inActiveButton : ""}`}
             onClick={() => SetShowingLikes(true)}
