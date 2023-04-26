@@ -8,10 +8,19 @@ import OtpInput from "react-otp-input";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MultiSelect from "../components/MultiSelect";
-import {GetServerSidePropsContext} from "next";
-import {createServerSupabaseClient, User} from "@supabase/auth-helpers-nextjs";
+import { GetServerSidePropsContext } from "next";
+import {
+  createServerSupabaseClient,
+  User,
+} from "@supabase/auth-helpers-nextjs";
 
-export default function becomeArtist({ user, userData }: { user: User, userData:any }) {
+export default function BecomeArtist({
+  user,
+  userData,
+}: {
+  user: User;
+  userData: any;
+}) {
   const router = useRouter();
 
   const [fullName, SetFullName] = useState("");
@@ -26,9 +35,6 @@ export default function becomeArtist({ user, userData }: { user: User, userData:
     { key: "3D", value: 2, selected: false },
     { key: "Chibi", value: 3, selected: false },
   ];
-  /*if(!user){
-    router.push('/createaccount')
-    }*/
 
   const sendVerificationCode = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -41,27 +47,33 @@ export default function becomeArtist({ user, userData }: { user: User, userData:
         if (data.success) {
           SetOTPSent(true);
           toast.success("OTP Sent!");
+        } else {
+          toast.error(data.error);
         }
       });
   };
 
   const verifyCode = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    fetch("/api/verifyphone", {
-      method: "POST",
-      body: JSON.stringify({ phoneNumber: phoneNumber, code: otp }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.error) {
-          toast.success("Verified!");
-          SetVerified(true);
-        }
-      });
+    if (otp.length > 6) {
+      toast.error("Please enter a proper OTP");
+    } else {
+      fetch("/api/verifyphone", {
+        method: "POST",
+        body: JSON.stringify({ phoneNumber: phoneNumber, code: otp }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.error) {
+            toast.success("Verified!");
+            SetVerified(true);
+          }
+        });
+    }
   };
 
   const postArtistData = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     const data = {
       name: fullName,
       phoneNumber: phoneNumber,
@@ -70,11 +82,12 @@ export default function becomeArtist({ user, userData }: { user: User, userData:
 
     fetch("/api/saveartistdata", { method: "POST", body: JSON.stringify(data) })
       .then((res) => res.json())
-      .then((data) => {console.log(data["message"])
-            if(!data.error) {
-              toast.success("Congrats! welcome to Art-Comm")
-              router.push(`profile/${userData.id}`)
-            }
+      .then((data) => {
+        console.log(data["message"]);
+        if (!data.error) {
+          toast.success("Congrats! welcome to Art-Comm");
+          router.push(`profile/${userData.id}`);
+        }
       });
   };
 
@@ -120,9 +133,9 @@ export default function becomeArtist({ user, userData }: { user: User, userData:
                   required
                   type="text"
                 />
-            <p className="hidden mt-1 text-sm text-interactive peer-invalid:block">
-            *Title must be longer than 3 characters.
-            </p>
+                <p className="hidden mt-1 text-sm text-interactive peer-invalid:block">
+                  *Title must be longer than 3 characters.
+                </p>
               </div>
               <div className="relative">
                 <label className="z-20 bottom-9 left-7 text-interactive drop-shadow-glow font-Inter">
@@ -141,11 +154,13 @@ export default function becomeArtist({ user, userData }: { user: User, userData:
                 <Phone
                   onChange={(e) => SetPhoneNumber(e.target.value)}
                   className="flex flex-col w-full mb-2 gap-2"
+                  required
                 >
                   <label className="z-20 bottom-9 left-7 text-interactive drop-shadow-glow font-Inter">
                     Country:
                   </label>
                   <Phone.Country
+                    required
                     disabled={verified}
                     className="p-2 text-sm input-field"
                   />
@@ -154,6 +169,7 @@ export default function becomeArtist({ user, userData }: { user: User, userData:
                   </label>
                   <Phone.Number
                     disabled={verified}
+                    required
                     placeholder="Phone Number"
                     className="w-full input-field disabled:text-opacity-60 disabled:text-black disabled:bg-opacity-75 disabled:border-opacity-80"
                   />
@@ -194,10 +210,7 @@ export default function becomeArtist({ user, userData }: { user: User, userData:
               </div>
               {!verified ? (
                 otpSent ? (
-                  <button
-                    onClick={verifyCode}
-                    className="btn-secondary"
-                  >
+                  <button onClick={verifyCode} className="btn-secondary">
                     Verify
                   </button>
                 ) : (
@@ -217,7 +230,6 @@ export default function becomeArtist({ user, userData }: { user: User, userData:
                   Submit
                 </button>
               )}
-
             </form>
           </div>
         </section>
@@ -244,17 +256,17 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const supabase = createServerSupabaseClient(ctx);
   // Check if we have a session
   const {
-    data: { session }
+    data: { session },
   } = await supabase.auth.getSession();
 
-  let userData = null
+  let userData = null;
 
   if (!session)
     return {
       redirect: {
         destination: "/signin",
-        permanent: false
-      }
+        permanent: false,
+      },
     };
   else {
     /*return {
@@ -263,14 +275,13 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         permanent: false
       }
       };*/
-  
-}
+  }
 
   return {
     props: {
       initialSession: session,
       user: session.user,
-      userData: userData 
-    }
+      userData: userData,
+    },
   };
 };
