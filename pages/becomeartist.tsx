@@ -8,8 +8,10 @@ import OtpInput from "react-otp-input";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MultiSelect from "../components/MultiSelect";
+import {GetServerSidePropsContext} from "next";
+import {createServerSupabaseClient, User} from "@supabase/auth-helpers-nextjs";
 
-export default function SignIn() {
+export default function becomeArtist({ user, userData }: { user: User, userData:any }) {
   const router = useRouter();
 
   const [fullName, SetFullName] = useState("");
@@ -68,7 +70,12 @@ export default function SignIn() {
 
     fetch("/api/saveartistdata", { method: "POST", body: JSON.stringify(data) })
       .then((res) => res.json())
-      .then((data) => {console.log(data["message"])});
+      .then((data) => {console.log(data["message"])
+            if(!data.error) {
+              toast.success("Congrats! welcome to Art-Comm")
+              router.push(`profile/${userData.id}`)
+            }
+      });
   };
 
   const selectedOptionsChangeHandler = (options: string[] | null) => {
@@ -185,7 +192,7 @@ export default function SignIn() {
                   </>
                 )}
               </div>
-              {verified ? (
+              {!verified ? (
                 otpSent ? (
                   <button
                     onClick={verifyCode}
@@ -231,3 +238,39 @@ export default function SignIn() {
     </>
   );
 }
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  // Create authenticated Supabase Client
+  const supabase = createServerSupabaseClient(ctx);
+  // Check if we have a session
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
+
+  let userData = null
+
+  if (!session)
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false
+      }
+    };
+  else {
+    /*return {
+      redirect: {
+        destination: '/',
+        permanent: false
+      }
+      };*/
+  
+}
+
+  return {
+    props: {
+      initialSession: session,
+      user: session.user,
+      userData: userData 
+    }
+  };
+};
