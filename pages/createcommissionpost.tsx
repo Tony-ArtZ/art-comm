@@ -83,7 +83,7 @@ const CommissionCard = ({
   };
 
   return (
-    <div className="p-4 my-4 border-4 border-solid border-interactive rounded-xl bg-secondary">
+    <div className="p-4 my-4 border-4 border-solid min-h-max shrink-0 border-interactive rounded-xl bg-secondary">
       <h3 className="w-full mb-4 text-2xl text-center text-heading font-Inter">
         {title}
       </h3>
@@ -105,7 +105,7 @@ const CommissionCard = ({
               </h1>
             </div>
           ) : (
-            <Image
+            <img
               alt="previewImage"
               src={imagePreview}
               fill
@@ -287,11 +287,11 @@ export default function CommissionForm() {
 
   return (
     <main className="flex flex-col items-center justify-center object-cover w-screen bg-cover bg-signIn">
-      <div className=" mt-24 border-8 border-solid border-secondary flex-col w-96 xl:w-[580px]  p-8 m-2 xl:p-16 rounded-3xl flex bg-primary drop-shadow-glow ">
+      <div className=" mt-24 items-center justify-center border-8 border-solid border-secondary flex-col w-96 xl:w-[580px]  p-8 m-2 xl:p-16 rounded-3xl flex bg-primary drop-shadow-glow ">
         <h1 className="text-4xl  xl:text-[52px] text-heading drop-shadow-glow font-Inter ">
           Make a Commission
         </h1>
-        <form id="form" onSubmit={handleSubmit} className="mt-4">
+        <form id="form" onSubmit={handleSubmit} className="mt-4 mb-8">
           <label className="z-20 bottom-9 left-7 text-interactive drop-shadow-glow font-Inter">
             Title:
           </label>
@@ -306,7 +306,7 @@ export default function CommissionForm() {
           <p className="invisible mt-1 mb-8 text-sm text-interactive peer-invalid:visible">
             *Title must be longer than 3 characters.
           </p>
-          <h1 className="text-xl text-heading font-Inter">Submit Examples:</h1>
+          <h1 className="text-xl text-center text-heading font-Inter">Submit Examples</h1>
           <CommissionCard
             id="card2"
             title="Sketch"
@@ -327,7 +327,7 @@ export default function CommissionForm() {
             id="card3"
             title="Shaded"
             imageBlob={shadedImageBlob}
-            onChangeHandler={handleShadedChange}
+             onChangeHandler={handleShadedChange}
             artCategory="shaded"
             onPriceChangeHandler={handlePriceChange}
           />
@@ -351,10 +351,10 @@ export default function CommissionForm() {
           <h1 className="mt-4 text-xs text-center text-interactive font-Inter">
             *More selected catagories will lead to less discovery
           </h1>
-          <button type="submit" form="form">
-            ggg
-          </button>
         </form>
+          <button type="submit" form="form" className="w-56 btn-primary">
+            Create Post
+          </button>
       </div>
     </main>
   );
