@@ -1,7 +1,6 @@
 
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
-import {json} from 'stream/consumers';
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
 
 type Data = {
@@ -24,7 +23,6 @@ export default async function  handler(
 
   switch (requestMethod){
     case 'POST':
-      const updateData = {[body.field]: body.value + "?" + Date.now()}
       const { error } = await supabase
   .from('Users')
   .update({[body.field]: body.value})

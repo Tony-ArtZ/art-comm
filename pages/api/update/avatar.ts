@@ -29,7 +29,7 @@ export default async function  handler(
   .update({ profile_picture: body.profile_picture + "?" + Date.now()})
   .eq('id', session.user.id)
   console.log(error)
-      res.status(200).json({ response: `you request was ${body.profile_picture}, get it together, baby`})
+      res.status(200).json({ response: `you request was ${body.profile_picture}`})
       break;
     default:
       res.status(405);

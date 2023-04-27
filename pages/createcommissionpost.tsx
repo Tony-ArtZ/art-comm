@@ -50,7 +50,8 @@ const CommissionCard = ({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
 
-    const file = e.target.files && e.target.files[0];
+    const file = e.target.files && e.target.files[0]
+    console.log(e.target.files[0].type)
     if (file) onChangeHandler(file);
   };
   const handlePortraitPriceChange = (
