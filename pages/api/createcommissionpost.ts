@@ -1,12 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import formidable from "formidable";
+import formidable, { File } from "formidable";
 import {
   SupabaseClient,
   createServerSupabaseClient,
 } from "@supabase/auth-helpers-nextjs";
 import { v4 as uuid } from "uuid";
-import fs from 'fs';
-import { Blob } from 'blob';
+import fs from "fs";
+import PersistentFile from "formidable/PersistentFile";
+import { resolve } from "dns";
 
 interface FormData {
   title: string;
@@ -22,9 +23,15 @@ interface FormData {
 }
 
 interface FormFiles {
-  sketchPicture: Blob;
-  lineArtPicture: Blob;
-  shadedPicture: Blob;
+  sketchPicture: formidable.File;
+  lineArtPicture: formidable.File;
+  shadedPicture: formidable.File;
+}
+
+interface ImageUrlResponse {
+  sketchPicture: string;
+  lineArtPicture: string;
+  shadedPicture: string;
 }
 
 //We used a formData for uploading Image Blobs to this endpoint
@@ -35,20 +42,39 @@ export const config = {
 };
 
 //upload all images
-const uploadImageBlob = async (
+const uploadImageBlob = (
   files: Partial<FormFiles>,
   supabase: SupabaseClient,
   id: string
-) => {
-  console.log(files, files.sketchPicture?.type)
-  const path = `${id}/avatar.png`;
-const file = files.sketchPicture;
-const fileContent = fs.readFileSync(file.filepath);
-const blob = new Blob([fileContent], { type: file.mimetype });
-  const { data, error } = await supabase.storage
-    .from("posts")
-    .upload(path, blob, { upsert: true });
-  console.log(data, error);
+): Promise<Partial<ImageUrlResponse>> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const imageUrls: Partial<ImageUrlResponse> = {};
+      const fileNames = Object.keys(files) as Array<keyof FormFiles>;
+
+      for (const file of fileNames) {
+        const fileContent = fs.readFileSync(files[file]!.filepath);
+        const blob = new Blob([fileContent], { type: files[file]?.mimetype! });
+        const path = `${id}/${file}`;
+        const { data, error } = await supabase.storage
+          .from("posts")
+          .upload(path, blob, { upsert: true });
+
+        if (!error) {
+          imageUrls[
+            file
+          ] = `https://wybevfopeppmmtlbjqtt.supabase.co/storage/v1/object/public/posts/${data.path}`;
+        }
+
+        console.log(data, error);
+      }
+
+      console.log(imageUrls);
+      resolve(imageUrls);
+    } catch (error) {
+      reject(error);
+    }
+  });
 };
 
 //upload the other Form data including links to the images
@@ -67,29 +93,36 @@ const uploadFormData = (
         console.error(err);
         res.status(500).json({ error: "Failed to parse form data" });
       } else {
+        const postId = uuid();
+        const imageUrls: Partial<ImageUrlResponse> = await uploadImageBlob(
+          files,
+          supabase,
+          postId
+        );
+
         const postData = {
-          id: uuid(),
+          id: postId,
           post_title: fields.title,
           post_by: user.id,
-          sketch_portrait_price: fields.sketchPortaitPrice,
-          sketch_half_body_price: fields.sketchFullBodyPrice,
-          sketch_full_body_price: fields.sketchFullBodyPrice,
-          line_art_portrait_price: fields.lineArtPortaitPrice,
-          line_art_half_body_price: fields.lineArtHalfBodyPrice,
-          line_art_full_body_price: fields.lineArtFullBodyPrice,
-          shaded_portrait_price: fields.shadedFullBodyPrice,
-          shaded_half_body_price: fields.shadedHalfBodyPrice,
-          shaded_full_body_price: fields.shadedFullBodyPrice,
-          sketch_image_url: "",
-          line_art_image_url: "",
-          shaded_image_url: "",
+          sketch_portrait_price: parseFloat(fields.sketchPortaitPrice!),
+          sketch_half_body_price: parseFloat(fields.sketchFullBodyPrice!),
+          sketch_full_body_price: parseFloat(fields.sketchFullBodyPrice!),
+          line_art_portrait_price: parseFloat(fields.lineArtPortaitPrice!),
+          line_art_half_body_price: parseFloat(fields.lineArtHalfBodyPrice!),
+          line_art_full_body_price: parseFloat(fields.lineArtFullBodyPrice!),
+          shaded_portrait_price: parseFloat(fields.shadedFullBodyPrice!),
+          shaded_half_body_price: parseFloat(fields.shadedHalfBodyPrice!),
+          shaded_full_body_price: parseFloat(fields.shadedFullBodyPrice!),
+          sketch_image_url: imageUrls.sketchPicture,
+          line_art_image_url: imageUrls.lineArtPicture,
+          shaded_image_url: imageUrls.shadedPicture,
         };
-        await uploadImageBlob(files, supabase, postData.id);
-        // const { data, error } = await supabase
-        //   .from("CommissionPosts")
-        //   .insert(postData);
-        console.log(fields);
-        res.status(200).json({ message: "success" });
+
+        const { data, error } = await supabase.from("Posts").insert(postData);
+
+        console.log(data, error);
+        if (!error) res.status(200).json({ message: "success" });
+        else res.status(500).json({ error: error });
       }
     }
   );

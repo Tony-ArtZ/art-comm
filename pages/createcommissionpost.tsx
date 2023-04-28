@@ -3,6 +3,8 @@ import { IoImagesOutline } from "react-icons/io5";
 import { BiDollar } from "react-icons/bi";
 import MultiSelect from "../components/MultiSelect";
 import Image from "next/image";
+import {CircleLoader} from "react-spinners";
+import {Slide, toast, ToastContainer} from "react-toastify";
 
 interface catagoryItem {
   key: string;
@@ -183,7 +185,7 @@ export default function CommissionForm() {
   const [sketchImageBlob, setSketchImageBlob] = useState<Blob | null>(null);
   const [lineArtImageBlob, setLineArtImageBlob] = useState<Blob | null>(null);
   const [shadedImageBlob, setShadedImageBlob] = useState<Blob | null>(null);
-
+  const [loading, SetLoading] = useState(false)
   const [sketchPrice, setSketchPrice] = useState({
     portrait: 0,
     halfBody: 0,
@@ -259,6 +261,8 @@ export default function CommissionForm() {
     event.preventDefault();
     const formData = new FormData();
 
+    toast.loading("Loading...")
+
     formData.append("title", name);
     formData.append("sketchPicture", sketchImageBlob!);
     formData.append("lineArtPicture", lineArtImageBlob!);
@@ -274,12 +278,19 @@ export default function CommissionForm() {
     formData.append("shadedFullBodyPrice", String(shadedPrice.fullBody));
 
     try {
+      SetLoading(true)
       await fetch("/api/createcommissionpost", {
         method: "POST",
         body: formData,
       })
         .then((res) => res.json())
-        .then((data) => console.log(JSON.stringify(data)));
+        .then((data) => {
+          if(!data.error) {
+            SetLoading(false)
+            toast.success("Success")
+          }
+          else throw(data.error)
+        });
     } catch (error) {
       console.log(error);
     }
@@ -288,6 +299,29 @@ export default function CommissionForm() {
 
   return (
     <main className="flex flex-col items-center justify-center object-cover w-screen bg-cover bg-signIn">
+        <ToastContainer
+          transition={Slide}
+          theme="colored"
+          toastStyle={{
+            fontWeight: "bold",
+            border: "solid 4px",
+            borderRadius: "15px",
+            backgroundColor: "#FFE7E7",
+            color: "#EF798A",
+          }}
+          bodyStyle={{ color: "#EF798A" }}
+          autoClose={3000}
+        />
+
+      {
+        loading && 
+          <div className="fixed top-0 left-0 z-50 w-screen h-screen bg-white grid place-items-center bg-opacity-90">
+            <div className="flex flex-col items-center gap-4">
+            <CircleLoader size={80} color="#EF798A"/>
+            <h1 className="text-center font-Inter text-interactive">Please Wait...</h1>
+            </div>
+          </div>
+      }
       <div className=" mt-24 items-center justify-center border-8 border-solid border-secondary flex-col w-96 xl:w-[580px]  p-8 m-2 xl:p-16 rounded-3xl flex bg-primary drop-shadow-glow ">
         <h1 className="text-4xl  xl:text-[52px] text-heading drop-shadow-glow font-Inter ">
           Make a Commission
