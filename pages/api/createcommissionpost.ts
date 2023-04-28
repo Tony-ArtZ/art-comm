@@ -20,6 +20,8 @@ interface FormData {
   shadedPortaitPrice: string;
   shadedHalfBodyPrice: string;
   shadedFullBodyPrice: string;
+  paymentOption: string;
+  selectedCategories: string;
 }
 
 interface FormFiles {
@@ -54,11 +56,11 @@ const uploadImageBlob = (
 
       for (const file of fileNames) {
         const fileContent = fs.readFileSync(files[file]!.filepath);
-        const blob = new Blob([fileContent], { type: files[file]?.mimetype! });
+        //const blob = new Blob([fileContent], { type: files[file]?.mimetype! });
         const path = `${id}/${file}`;
         const { data, error } = await supabase.storage
           .from("posts")
-          .upload(path, blob, { upsert: true });
+          .upload(path, fileContent, { contentType: files[file]?.mimetype!, upsert: true });
 
         if (!error) {
           imageUrls[
@@ -116,6 +118,8 @@ const uploadFormData = (
           sketch_image_url: imageUrls.sketchPicture,
           line_art_image_url: imageUrls.lineArtPicture,
           shaded_image_url: imageUrls.shadedPicture,
+          payment_option: fields.paymentOption,
+          categories: JSON.parse(fields.selectedCategories!)
         };
 
         const { data, error } = await supabase.from("Posts").insert(postData);

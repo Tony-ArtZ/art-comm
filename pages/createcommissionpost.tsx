@@ -1,10 +1,11 @@
-import { ReactElement, use, useEffect, useState } from "react";
+import { ReactElement, use, useEffect, useRef, useState } from "react";
 import { IoImagesOutline } from "react-icons/io5";
 import { BiDollar } from "react-icons/bi";
 import MultiSelect from "../components/MultiSelect";
 import Image from "next/image";
-import {CircleLoader} from "react-spinners";
-import {Slide, toast, ToastContainer} from "react-toastify";
+import { CircleLoader } from "react-spinners";
+import { Slide, toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface catagoryItem {
   key: string;
@@ -27,33 +28,32 @@ const CommissionCard = ({
   onChangeHandler,
   artCategory,
   onPriceChangeHandler,
+  fileReader,
 }: {
   id: string;
   title: string;
   imageBlob: Blob | null;
   onChangeHandler: (image: Blob) => void;
-  artCategory: artCatagory
+  artCategory: artCatagory;
   onPriceChangeHandler: priceChangeHandlerType;
+  fileReader: FileReader | null;
 }): ReactElement => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  let fileReader: FileReader | null = null;
 
   useEffect(() => {
-    if (imageBlob) {
-      fileReader = new window.FileReader();
+    if (imageBlob && fileReader) {
       fileReader.onloadend = () => {
         setImagePreview(fileReader?.result as string);
       };
 
       fileReader.readAsDataURL(imageBlob!);
     }
-  }, [imageBlob]);
+  }, [imageBlob, fileReader]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
 
-    const file = e.target.files && e.target.files[0]
-    console.log(e.target.files[0].type)
+    const file = e.target.files && e.target.files[0];
     if (file) onChangeHandler(file);
   };
   const handlePortraitPriceChange = (
@@ -62,7 +62,6 @@ const CommissionCard = ({
     const price = !Number.isNaN(event.target.value)
       ? event.target.valueAsNumber
       : 0;
-      console.log(price)
     onPriceChangeHandler(price, artCategory, "portrait");
   };
 
@@ -72,7 +71,6 @@ const CommissionCard = ({
     const price = !Number.isNaN(event.target.value)
       ? event.target.valueAsNumber
       : 0;
-      console.log(price)
     onPriceChangeHandler(price, artCategory, "halfBody");
   };
 
@@ -96,6 +94,7 @@ const CommissionCard = ({
           id={id}
           onChange={handleImageChange}
           required
+          accept="image/png, image/jpeg"
           className="-z-50  absolute bottom-[1000px] hidden"
         />
         <label htmlFor={id} className="mb-4 grid place-items-center">
@@ -181,11 +180,12 @@ const CommissionCard = ({
 
 export default function CommissionForm() {
   const [name, setName] = useState("");
-  const [willDo, setWillDo] = useState<string[]>();
+  const [paymentOption, setPaymentOption] = useState("");
   const [sketchImageBlob, setSketchImageBlob] = useState<Blob | null>(null);
   const [lineArtImageBlob, setLineArtImageBlob] = useState<Blob | null>(null);
   const [shadedImageBlob, setShadedImageBlob] = useState<Blob | null>(null);
-  const [loading, SetLoading] = useState(false)
+  const [selectedOptions, SetSelectedOptions] = useState<string[] | null>([]);
+  const [loading, SetLoading] = useState(false);
   const [sketchPrice, setSketchPrice] = useState({
     portrait: 0,
     halfBody: 0,
@@ -196,7 +196,6 @@ export default function CommissionForm() {
     halfBody: 0,
     fullBody: 0,
   });
-
   const [shadedPrice, setShadedPrice] = useState({
     portrait: 0,
     halfBody: 0,
@@ -209,21 +208,19 @@ export default function CommissionForm() {
     { key: "Chibi", value: 3, selected: false },
   ];
 
+  const fileReaderRef = useRef<null | FileReader>(null);
+
+  useEffect(() => {
+    fileReaderRef.current = new FileReader();
+    // do other things with fileReaderRef.current...
+  }, []);
+
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
 
-  const handleWillDoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const options = event.target.options;
-    const selectedValues = [];
-
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].selected) {
-        selectedValues.push(options[i].value);
-      }
-    }
-
-    setWillDo(selectedValues);
+  const handlePaymentChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setPaymentOption(event.target.value);
   };
 
   const handleSketchChange = (imageBlob: Blob) => {
@@ -243,7 +240,6 @@ export default function CommissionForm() {
     category: artCatagory,
     sizeType: artSizeType
   ): void => {
-    console.log(`sketch: ${JSON.stringify(sketchPrice)}, lineArt: ${JSON.stringify(lineArtPrice)}, shaded: ${JSON.stringify(shadedPrice)}`)
     switch (category) {
       case "sketch":
         setSketchPrice({ ...sketchPrice, [sizeType]: value });
@@ -257,71 +253,65 @@ export default function CommissionForm() {
     }
   };
 
+  const selectedOptionsChangeHandler = (options: string[] | null) => {
+    SetSelectedOptions(options);
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const formData = new FormData();
+    if (!selectedOptions || selectedOptions.length < 1) {
+      toast.error("Please select a category");
+    } else {
+      event.preventDefault();
+      const formData = new FormData();
 
-    toast.loading("Loading...")
+      formData.append("title", name);
+      formData.append("sketchPicture", sketchImageBlob!);
+      formData.append("lineArtPicture", lineArtImageBlob!);
+      formData.append("shadedPicture", shadedImageBlob!);
+      formData.append("sketchPortaitPrice", String(sketchPrice.portrait));
+      formData.append("sketchHalfBodyPrice", String(sketchPrice.halfBody));
+      formData.append("sketchFullBodyPrice", String(sketchPrice.fullBody));
+      formData.append("lineArtPortaitPrice", String(lineArtPrice.portrait));
+      formData.append("lineArtHalfBodyPrice", String(lineArtPrice.halfBody));
+      formData.append("lineArtFullBodyPrice", String(lineArtPrice.fullBody));
+      formData.append("shadedPortaitPrice", String(shadedPrice.portrait));
+      formData.append("shadedHalfBodyPrice", String(shadedPrice.halfBody));
+      formData.append("shadedFullBodyPrice", String(shadedPrice.fullBody));
+      formData.append("paymentOption", paymentOption);
+      formData.append("selectedCategories", JSON.stringify(selectedOptions));
 
-    formData.append("title", name);
-    formData.append("sketchPicture", sketchImageBlob!);
-    formData.append("lineArtPicture", lineArtImageBlob!);
-    formData.append("shadedPicture", shadedImageBlob!);
-    formData.append("sketchPortaitPrice", String(sketchPrice.portrait));
-    formData.append("sketchHalfBodyPrice", String(sketchPrice.halfBody));
-    formData.append("sketchFullBodyPrice", String(sketchPrice.fullBody));
-    formData.append("lineArtPortaitPrice", String(lineArtPrice.portrait));
-    formData.append("lineArtHalfBodyPrice", String(lineArtPrice.halfBody));
-    formData.append("lineArtFullBodyPrice", String(lineArtPrice.fullBody));
-    formData.append("shadedPortaitPrice", String(shadedPrice.portrait));
-    formData.append("shadedHalfBodyPrice", String(shadedPrice.halfBody));
-    formData.append("shadedFullBodyPrice", String(shadedPrice.fullBody));
-
-    try {
-      SetLoading(true)
-      await fetch("/api/createcommissionpost", {
-        method: "POST",
-        body: formData,
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if(!data.error) {
-            SetLoading(false)
-            toast.success("Success")
-          }
-          else throw(data.error)
-        });
-    } catch (error) {
-      console.log(error);
+      try {
+        SetLoading(true);
+        await fetch("/api/createcommissionpost", {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (!data.error) {
+              SetLoading(false);
+              toast.success("Success");
+            } else throw data.error;
+          });
+      } catch (error) {
+        console.log(error);
+      }
     }
-    // Handle form submission here
   };
 
   return (
     <main className="flex flex-col items-center justify-center object-cover w-screen bg-cover bg-signIn">
-        <ToastContainer
-          transition={Slide}
-          theme="colored"
-          toastStyle={{
-            fontWeight: "bold",
-            border: "solid 4px",
-            borderRadius: "15px",
-            backgroundColor: "#FFE7E7",
-            color: "#EF798A",
-          }}
-          bodyStyle={{ color: "#EF798A" }}
-          autoClose={3000}
-        />
-
-      {
-        loading && 
-          <div className="fixed top-0 left-0 z-50 w-screen h-screen bg-white grid place-items-center bg-opacity-90">
-            <div className="flex flex-col items-center gap-4">
-            <CircleLoader size={80} color="#EF798A"/>
-            <h1 className="text-center font-Inter text-interactive">Please Wait...</h1>
-            </div>
+      {loading && (
+        <div className="fixed top-0 left-0 z-50 w-screen h-screen bg-white grid place-items-center bg-opacity-90">
+          <div className="flex flex-col items-center gap-4">
+            <CircleLoader size={80} color="#EF798A" />
+            <h1 className="text-center font-Inter text-interactive">
+              Please Wait...
+            </h1>
           </div>
-      }
+        </div>
+      )}
       <div className=" mt-24 items-center justify-center border-8 border-solid border-secondary flex-col w-96 xl:w-[580px]  p-8 m-2 xl:p-16 rounded-3xl flex bg-primary drop-shadow-glow ">
         <h1 className="text-4xl  xl:text-[52px] text-heading drop-shadow-glow font-Inter ">
           Make a Commission
@@ -341,7 +331,9 @@ export default function CommissionForm() {
           <p className="invisible mt-1 mb-8 text-sm text-interactive peer-invalid:visible">
             *Title must be longer than 3 characters.
           </p>
-          <h1 className="text-xl text-center text-heading font-Inter">Submit Examples</h1>
+          <h1 className="text-xl text-center text-heading font-Inter">
+            Submit Examples
+          </h1>
           <CommissionCard
             id="card2"
             title="Sketch"
@@ -349,6 +341,7 @@ export default function CommissionForm() {
             onChangeHandler={handleSketchChange}
             artCategory="sketch"
             onPriceChangeHandler={handlePriceChange}
+            fileReader={fileReaderRef.current}
           />
           <CommissionCard
             id="card1"
@@ -357,20 +350,22 @@ export default function CommissionForm() {
             onChangeHandler={handleLineArtChange}
             artCategory="lineArt"
             onPriceChangeHandler={handlePriceChange}
+            fileReader={fileReaderRef.current}
           />
           <CommissionCard
             id="card3"
             title="Shaded"
             imageBlob={shadedImageBlob}
-             onChangeHandler={handleShadedChange}
+            onChangeHandler={handleShadedChange}
             artCategory="shaded"
             onPriceChangeHandler={handlePriceChange}
+            fileReader={fileReaderRef.current}
           />
           <label className="flex flex-col items-center justify-center w-full mt-4 mb-4 text-xl gap-2 text-heading font-Inter">
             Payment Preference
             <select
-              value={willDo}
-              onChange={handleWillDoChange}
+              onChange={handlePaymentChange}
+              required
               className="w-64 h-12 text-sm text-center border-4 border-solid rounded-full font-Inter text-interactive drop-shadow-glow bg-secondary border-interactive"
             >
               <option value="PaymentFirst">Payment First</option>
@@ -382,15 +377,31 @@ export default function CommissionForm() {
           <h1 className="mb-4 text-xl text-center text-heading font-Inter">
             Select Commission Category{" "}
           </h1>
-          <MultiSelect catagory={catagory} />
+          <MultiSelect
+            catagory={catagory}
+            onChangeSelectionHandler={selectedOptionsChangeHandler}
+          />
           <h1 className="mt-4 text-xs text-center text-interactive font-Inter">
             *More selected catagories will lead to less discovery
           </h1>
         </form>
-          <button type="submit" form="form" className="w-56 btn-primary">
-            Create Post
-          </button>
+        <button type="submit" form="form" className="w-56 btn-primary">
+          Create Post
+        </button>
       </div>
+      <ToastContainer
+        transition={Slide}
+        theme="colored"
+        toastStyle={{
+          fontWeight: "bold",
+          border: "solid 4px",
+          borderRadius: "15px",
+          backgroundColor: "#FFE7E7",
+          color: "#EF798A",
+        }}
+        bodyStyle={{ color: "#EF798A" }}
+        autoClose={3000}
+      />
     </main>
   );
 }
