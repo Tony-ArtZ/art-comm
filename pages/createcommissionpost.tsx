@@ -6,6 +6,9 @@ import Image from "next/image";
 import { CircleLoader } from "react-spinners";
 import { Slide, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {useRouter} from "next/router";
+import {GetServerSidePropsContext} from "next";
+import {createServerSupabaseClient, User, Session} from "@supabase/auth-helpers-nextjs";
 
 interface catagoryItem {
   key: string;
@@ -110,7 +113,6 @@ const CommissionCard = ({
             <img
               alt="previewImage"
               src={imagePreview}
-              fill
               className="border-4 border-solid rounded-xl border-interactive"
             />
           )}
@@ -178,7 +180,7 @@ const CommissionCard = ({
   );
 };
 
-export default function CommissionForm() {
+export default function CommissionForm({session, user}:{session: Session, user: User}) {
   const [name, setName] = useState("");
   const [paymentOption, setPaymentOption] = useState("");
   const [sketchImageBlob, setSketchImageBlob] = useState<Blob | null>(null);
@@ -209,6 +211,8 @@ export default function CommissionForm() {
   ];
 
   const fileReaderRef = useRef<null | FileReader>(null);
+
+  const router = useRouter()
 
   useEffect(() => {
     fileReaderRef.current = new FileReader();
@@ -292,6 +296,7 @@ export default function CommissionForm() {
             if (!data.error) {
               SetLoading(false);
               toast.success("Success");
+              router.push(`/profile/${user.id}`)
             } else throw data.error;
           });
       } catch (error) {
@@ -405,3 +410,27 @@ export default function CommissionForm() {
     </main>
   );
 }
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  // Create authenticated Supabase Client
+  const supabase = createServerSupabaseClient(ctx);
+  // Check if we have a session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+
+  return {
+    props: {
+      initialSession: session,
+      user: session.user,
+    },
+  };
+};

@@ -8,11 +8,11 @@ import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { FiEdit } from "react-icons/fi";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CreatePost from "../../components/CreatePost";
+import EditProfile from "../../components/EditProfile";
 
 export default function Home({
   user,
@@ -33,6 +33,7 @@ export default function Home({
   const owner = userData.id == user.id;
   const isArtist = userData.artist;
   const [showingLikes, SetShowingLikes] = useState(true);
+  const [editingProfile, SetEditingProfile] = useState(false)
   const inActiveButton =
     "border-4 border-solid btn-secondary bg-secondary border-interactive text-interactive hover:bg-interactive hover:border-0 hover:text-white";
   console.log(likeCount);
@@ -123,6 +124,10 @@ export default function Home({
     SetDescriptionChange(false);
     };*/
 
+  const handleEditingProfileChange = (value: boolean) => {
+      SetEditingProfile(value)
+  }
+
   return (
     <>
       <Head>
@@ -132,6 +137,7 @@ export default function Home({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex flex-col items-center w-screen h-screen overflow-hidden bg-primary">
+        {editingProfile && owner && <EditProfile user={user} userData={userData} profileEditingHandler={handleEditingProfileChange}/>}
         <div className="flex justify-center w-screen h-64 bg-secondary">
           {userData.banner_picture && (
             <Image
@@ -144,6 +150,8 @@ export default function Home({
               src={userData.banner_picture}
             />
           )}
+
+          {owner && !editingProfile && <button onClick={()=> handleEditingProfileChange(true)} className="absolute z-40 w-24 h-12 text-sm btn-secondary top-4 left-4">Edit Profile</button>}
           {!owner && (
             <div
               className="absolute text-5xl text-center align-middle drop-shadow-glowHigh top-3 left-3 text-interactive"

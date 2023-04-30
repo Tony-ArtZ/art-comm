@@ -51,6 +51,9 @@ module.exports = {
       screens: {
         "sm-md" :'902px',
       },
+      gradientColorStops: {
+        "hero-stop" : "15%"
+      },
     },
   },
   plugins: [],
