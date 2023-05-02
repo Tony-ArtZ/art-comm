@@ -30,10 +30,10 @@ export default function Home({
   likeCount: number;
 }) {
   const router = useRouter();
-  const owner = userData.id == user.id;
-  const isArtist = userData.artist;
+  const owner = userData ? userData.id == user.id : false;
+  const isArtist = userData ? userData.artist : false;
   const [showingLikes, SetShowingLikes] = useState(true);
-  const [editingProfile, SetEditingProfile] = useState(false)
+  const [editingProfile, SetEditingProfile] = useState(false);
   const inActiveButton =
     "border-4 border-solid btn-secondary bg-secondary border-interactive text-interactive hover:bg-interactive hover:border-0 hover:text-white";
   console.log(likeCount);
@@ -43,7 +43,7 @@ export default function Home({
     SetShowingLikes(true);
   }, [isLiked]);
 
- /* const updateDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  /* const updateDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (userDescription !== e.target.value) {
       SetDescriptionChange(true);
       SetUserDescription(e.target.value);
@@ -69,8 +69,8 @@ export default function Home({
     toast.info("Uploading Image...");
     const path = `${userData.id}/avatar.png`;
     //const { data, error } = await supabase.storage
-      //.from("profile")
-      //.upload(path, imageBlob, { upsert: true });
+    //.from("profile")
+    //.upload(path, imageBlob, { upsert: true });
     //console.log(data, error);
     fetch("http://localhost:3000/api/update/profile", {
       method: "POST",
@@ -91,8 +91,8 @@ export default function Home({
     const path = `${userData.id}/banner.png`;
     toast.info("Uploading Image...");
     //const { data, error } = await supabase.storage
-      //.from("profile")
-      //.upload(path, imageBlob, { upsert: true });
+    //.from("profile")
+    //.upload(path, imageBlob, { upsert: true });
     //console.log(data, error);
 
     fetch("http://localhost:3000/api/update/profile", {
@@ -125,8 +125,8 @@ export default function Home({
     };*/
 
   const handleEditingProfileChange = (value: boolean) => {
-      SetEditingProfile(value)
-  }
+    SetEditingProfile(value);
+  };
 
   return (
     <>
@@ -137,7 +137,13 @@ export default function Home({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex flex-col items-center w-screen h-screen overflow-hidden bg-primary">
-        {editingProfile && owner && <EditProfile user={user} userData={userData} profileEditingHandler={handleEditingProfileChange}/>}
+        {editingProfile && owner && (
+          <EditProfile
+            user={user}
+            userData={userData}
+            profileEditingHandler={handleEditingProfileChange}
+          />
+        )}
         <div className="flex justify-center w-screen h-64 bg-secondary">
           {userData.banner_picture && (
             <Image
@@ -151,7 +157,15 @@ export default function Home({
             />
           )}
 
-          {owner && !editingProfile && <button onClick={()=> handleEditingProfileChange(true)} className="absolute z-40 w-24 h-12 text-sm btn-secondary top-4 left-4">Edit Profile</button>}
+          <div className="absolute w-full top-0 left-0 h-64 bg-gradient-to-t from-[#F0B3AB] to-45%" />
+          {owner && !editingProfile && (
+            <button
+              onClick={() => handleEditingProfileChange(true)}
+              className="absolute z-40 w-24 h-12 text-sm btn-secondary top-4 left-4"
+            >
+              Edit Profile
+            </button>
+          )}
           {!owner && (
             <div
               className="absolute text-5xl text-center align-middle drop-shadow-glowHigh top-3 left-3 text-interactive"
@@ -180,11 +194,10 @@ export default function Home({
         <h1 className="mt-20 text-3xl text-heading font-Inter">
           {userData.user_name}
         </h1>
-        <text 
-          className="mt-3 mb-5 font-sans text-center text-gray-800 fh-24 font-bolder w-80">
+        <text className="mt-3 mb-5 font-sans text-center text-gray-800 fh-24 font-bolder w-80">
           {userData?.description}
         </text>
-        {owner && !isArtist &&(
+        {owner && !isArtist && (
           <button
             className="flex-shrink-0 w-48 p-4 mb-2 text-sm btn-secondary"
             onClick={() => router.push("/becomeartist")}
@@ -238,7 +251,11 @@ export default function Home({
             <></>
           )}
         </div>
-      <CreatePost onClick={()=>{router.push('/createcommissionpost')}}/>
+        <CreatePost
+          onClick={() => {
+            router.push("/createcommissionpost");
+          }}
+        />
         <ToastContainer
           transition={Slide}
           theme="colored"
@@ -270,7 +287,13 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   let isLiked: boolean = false;
   let likes: any = null;
 
-  if (!session) return { props: { user: null } };
+  if (!session)
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
   else {
     const { data, error } = await supabase
       .from("Users")
