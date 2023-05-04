@@ -4,15 +4,24 @@ import { useEffect, useRef, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { IoIosClose } from "react-icons/io";
+import {toast} from "react-toastify";
 
+interface updatedData 
+{avatarPicture?:string, bannerPicture?:string, description?:string}
 export default function EditProfile({
   user,
   userData,
   profileEditingHandler,
+  createToast,
+  handleSaveSuccess,
+  handleLoading,
 }: {
   user: User;
   userData: any;
   profileEditingHandler: (value: boolean) => void;
+  createToast: (args:string)=>void;
+  handleSaveSuccess: (args:updatedData)=>void;
+  handleLoading: (args:boolean)=>void;
 }) {
   const [name, SetName] = useState("");
   const [description, SetDescription] = useState("");
@@ -31,19 +40,21 @@ export default function EditProfile({
 
   const handleFormDataSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    handleLoading(true)
     const formData = new FormData();
 
     avatarBlob && formData.append("avatarBlob", avatarBlob);
     bannerBlob && formData.append("bannerBlob", bannerBlob);
     description && formData.append("description", description);
-    for (var pair of formData.entries()) {
-      console.log(pair[0]+ ' - ' + pair[1]); 
-  }
 
     fetch("/api/updateprofile", { method: "POST", body: formData })
       .then((res) => res.json())
       .then((data) => {
+        if(!data.error) {
+          handleSaveSuccess(data)
+          createToast("Successfully Updated!")
         console.log(data);
+        }
       });
   };
 
@@ -165,7 +176,7 @@ export default function EditProfile({
           {userData?.description}
         </textarea>
         {hasChanges && (
-          <button className="btn-primary mb-4" type="submit">
+          <button className="mb-4 btn-primary" type="submit">
             Save
           </button>
         )}

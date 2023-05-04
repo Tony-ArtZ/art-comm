@@ -105,8 +105,7 @@ const CommissionCard = ({
             <div className="flex flex-col items-center justify-center border-4 border-dashed w-52 aspect-[3/2] bg-secondary border-interactive rounded-xl">
               <IoImagesOutline className="text-4xl text-interactive" />
               <h1 className="font-Inter text-interactive">
-                {" "}
-                Upload an Example{" "}
+                Upload an Example
               </h1>
             </div>
           ) : (

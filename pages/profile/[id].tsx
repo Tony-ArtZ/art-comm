@@ -13,6 +13,35 @@ import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CreatePost from "../../components/CreatePost";
 import EditProfile from "../../components/EditProfile";
+import { profile } from "console";
+import { CircleLoader } from "react-spinners";
+import CommissionPostProfile from "../../components/CommissionPostProfile";
+
+interface CommissionPost {
+  id: string;
+  post_title: string;
+  post_by: string;
+  sketch_portrait_price: number;
+  sketch_half_body_price: number;
+  sketch_full_body_price: number;
+  line_art_portrait_price: number;
+  line_art_half_body_price: number;
+  line_art_full_body_price: number;
+  shaded_portrait_price: number;
+  shaded_half_body_price: number;
+  shaded_full_body_price: number;
+  sketch_image_url: string;
+  line_art_image_url: string;
+  shaded_image_url: string;
+  payment_option: string;
+  categories: string[];
+}
+
+interface UpdatedData {
+  profile_picture?: string;
+  banner_picture?: string;
+  description?: string;
+}
 
 export default function Home({
   user,
@@ -21,6 +50,7 @@ export default function Home({
   isLiked,
   likes,
   likeCount,
+  commissionPosts,
 }: {
   user: User;
   userData: any;
@@ -28,29 +58,33 @@ export default function Home({
   isLiked: boolean;
   likes: any;
   likeCount: number;
+  commissionPosts: CommissionPost[];
 }) {
   const router = useRouter();
   const owner = userData ? userData.id == user.id : false;
   const isArtist = userData ? userData.artist : false;
   const [showingLikes, SetShowingLikes] = useState(true);
   const [editingProfile, SetEditingProfile] = useState(false);
+  const [description, SetDescription] = useState<string>(userData?.description);
+  const [avatar, SetAvatar] = useState<string>(userData?.profile_picture);
+  const [banner, SetBanner] = useState<string>(userData?.banner_picture);
+  const [loading, SetLoading] = useState(false);
+
   const inActiveButton =
     "border-4 border-solid btn-secondary bg-secondary border-interactive text-interactive hover:bg-interactive hover:border-0 hover:text-white";
   console.log(likeCount);
   const [Liked, SetLiked] = useState<boolean>(isLiked);
+
   useEffect(() => {
     SetLiked(isLiked);
     SetShowingLikes(true);
   }, [isLiked]);
 
-  /* const updateDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (userDescription !== e.target.value) {
-      SetDescriptionChange(true);
-      SetUserDescription(e.target.value);
-    } else {
-      SetDescriptionChange(false);
-    }
-    };*/
+  useEffect(() => {
+    SetAvatar(userData?.profile_picture);
+    SetBanner(userData?.banner_picture);
+    SetDescription(userData?.description);
+  }, [userData]);
 
   const updateLike = async () => {
     fetch("http://localhost:3000/api/update/addLike", {
@@ -64,65 +98,17 @@ export default function Home({
       });
   };
 
-  const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const imageBlob = e.target.files![0];
-    toast.info("Uploading Image...");
-    const path = `${userData.id}/avatar.png`;
-    //const { data, error } = await supabase.storage
-    //.from("profile")
-    //.upload(path, imageBlob, { upsert: true });
-    //console.log(data, error);
-    fetch("http://localhost:3000/api/update/profile", {
-      method: "POST",
-      body: JSON.stringify({
-        field: "profile_picture",
-        value: `https://wybevfopeppmmtlbjqtt.supabase.co/storage/v1/object/public/profile/${path}?${Date.now()}`,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data: any) => {
-        toast.success("Successfully Updated");
-        router.push(`/profile/${userData.id}`);
-      });
+  const handleLoading = (args: boolean) => {
+    SetLoading(args);
   };
 
-  const uploadBanner = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const imageBlob = e.target.files![0];
-    const path = `${userData.id}/banner.png`;
-    toast.info("Uploading Image...");
-    //const { data, error } = await supabase.storage
-    //.from("profile")
-    //.upload(path, imageBlob, { upsert: true });
-    //console.log(data, error);
-
-    fetch("http://localhost:3000/api/update/profile", {
-      method: "POST",
-      body: JSON.stringify({
-        field: "banner_picture",
-        value: `https://wybevfopeppmmtlbjqtt.supabase.co/storage/v1/object/public/profile/${path}?${Date.now()}`,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data: any) => {
-        toast.success("Successfully Updated");
-        router.push(`/profile/${userData.id}`);
-      });
+  const handleSaveSuccess = (data: UpdatedData) => {
+    data.description && SetDescription(data.description);
+    data.profile_picture && SetAvatar(data.profile_picture);
+    data.banner_picture && SetBanner(data.banner_picture);
+    SetEditingProfile(false);
+    handleLoading(false);
   };
-
-  /*const postDescriptionChange = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    fetch("http://localhost:3000/api/update/profile", {
-      method: "POST",
-      body: JSON.stringify({ field: "description", value: userDescription }),
-    })
-      .then((response) => response.json())
-      .then((data: any) => {
-        console.log(data.response);
-        toast.success("Successfully Updated!");
-        router.push(`/profile/${userData.id}`);
-      });
-    SetDescriptionChange(false);
-    };*/
 
   const handleEditingProfileChange = (value: boolean) => {
     SetEditingProfile(value);
@@ -136,13 +122,30 @@ export default function Home({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex flex-col items-center w-screen h-screen overflow-hidden bg-primary">
+      <main className="flex flex-col items-center w-screen h-max bg-primary">
         {editingProfile && owner && (
           <EditProfile
             user={user}
-            userData={userData}
+            userData={{
+              description: description,
+              profile_picture: avatar,
+              banner_picture: banner,
+            }}
             profileEditingHandler={handleEditingProfileChange}
+            createToast={(args: string) => toast.success(args)}
+            handleLoading={handleLoading}
+            handleSaveSuccess={handleSaveSuccess}
           />
+        )}
+        {loading && (
+          <div className="fixed top-0 left-0 z-[100] w-screen h-screen bg-white grid place-items-center bg-opacity-90">
+            <div className="flex flex-col items-center gap-4">
+              <CircleLoader size={80} color="#EF798A" />
+              <h1 className="text-center font-Inter text-interactive">
+                Please Wait...
+              </h1>
+            </div>
+          </div>
         )}
         <div className="flex justify-center w-screen h-64 bg-secondary">
           {userData.banner_picture && (
@@ -153,7 +156,7 @@ export default function Home({
               className="object-cover w-full h-full max-h-full min-h-full"
               placeholder="blur"
               blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAADXUAAA11AFeZeUIAAAC9klEQVQ4ER2TSXIbZRiGn+7+e9BgDbEtO8bBKRYU3sGGA1AsYMEdWHABKhfI3bJIkR0BFrFDxdjGlmQNjdSDeuZtVUlVf0/fO37Wq1e/Nl9/8y0vPn/JoNenbipcv0dVVWBZGMehahr007/mcTpjPptRliWuY/P27RtdT4mSmM02wnFd83q1eKKualarBdvNlqZuWCyWpEmC63kYY6jrmtl8zvX1Bz5+vGK5XFBpaJZlHE9OODqaEHS6OI5xXk9ncx4eHliuVqzX6z27m5tbVuGa0WjEQb9PVhT89u4dd/e3uK6njwOGejYcjTl5foYfdLFsGxMEHSmzSfKceFcQZCXXtw94fsC2iLm+ueP4+Ig4jvcMTp+f44u1HwTssnwP9PjPHYnUFAI1SboTTYeBY8irksZyWMcJY69D1wuosVlvIuaLlWQds1yH9Ps90t2OefhEkiYaFgswaU3GbHXoS1I7KOgPKC32Mo3rcjAc0Dvocztd0BGrBgtbzBcCKOWp2+3RSBnGpdPTWffMy8tLDgYjDienDPfG9giUtm08rBZILLsdXwMaYn0Q24ZEIeVFSSKAWMpSDazVCFUEY/e6FJ5u7hmAHGW2jel0IPdLDiT5ROjT/zaEZc1UEktVKoojNlGkAJV0XZHnBU0pD6frFUEaE0l/J0np9ofqkkcmj6JtSNcq+e6rL/CNxdXv7wnDEM/zcYHAhkTBJOslUbSlLnJMKg9q28FJMw3K5OuGydEJSbylK79Oh2NySXEcl0244uHfexUdHDWjLXubbCl25S4j3YSYSEV2LcPxYExnMMRXOS8vLpgtFkwOD3lxesZGLBq989nhhD/+es+nuxtc+WYJpBaYpw42WozWAuunn39pLr+85EKr1zJtk3w2HhO1dZL5fQXUrl8tOk+y5+rT31qCe2y92/p49eFPLUNILm+LLMX8+P0PnJ+dEwilUIqFDK811lfhc51bS0qZXulZpSTbYo+fHe0rEmtgsYtZPr4hXj7tQ/kfCAepOXDiiT4AAAAASUVORK5CYII="
-              src={userData.banner_picture}
+              src={banner}
             />
           )}
 
@@ -187,7 +190,7 @@ export default function Home({
             placeholder="blur"
             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAGCAYAAAD68A/GAAAACXBIWXMAADXUAAA11AFeZeUIAAAAo0lEQVQIHS2OsW7DMAxEH0VKdtOl//83XbpkzVJkLroGCZCisCXm7EQAgaP4jkf7/Tymh+NvE3FoeKvgjvF6LxF+T0pNvAx8YyaHPsjeYaRoleDg2rGW2FA39L0I0NB2UDpl2sD/y5+SjH4zohkWe/LTsKzYupKqOJ1/dlfzQlVq0dr3JlrDDfK+6pSF+Dp/a3tHDLUYswwf88wkXS2pOsMV/wD+v0XbEuUSvAAAAABJRU5ErkJggg=="
             alt="profile"
-            src={userData?.profile_picture}
+            src={avatar}
             className="absolute block w-24 h-24 ml-auto mr-auto rounded-full bg-secondary top-52 outline-8 drop-shadow-glow outline-primary outline"
           />
         </div>
@@ -195,7 +198,7 @@ export default function Home({
           {userData.user_name}
         </h1>
         <text className="mt-3 mb-5 font-sans text-center text-gray-800 fh-24 font-bolder w-80">
-          {userData?.description}
+          {description}
         </text>
         {owner && !isArtist && (
           <button
@@ -205,6 +208,14 @@ export default function Home({
             Become An Artist Now!
           </button>
         )}
+        {commissionPosts.length > 0 && (
+          <div className="mb-4">
+            {commissionPosts.map((post) => (
+              <CommissionPostProfile key={post.id} post={post} />
+            ))}
+          </div>
+        )}
+      <hr className="w-60 h-[0.15rem] p-0 my-4 border-none rounded-lg outline-none bg-interactive" />
         <div className="flex justify-center w-full gap-2">
           <button
             className={`btn-secondary ${!showingLikes ? inActiveButton : ""}`}
@@ -301,11 +312,11 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       .eq("id", accountId);
     userData = data;
 
-    const { data: LikeStatusData }: any = await supabase
+    const { data: likeStatusData }: any = await supabase
       .from("Likes")
       .select("*")
       .match({ liked_by: session.user.id, liked: accountId });
-    isLiked = !!LikeStatusData[0];
+    isLiked = !!likeStatusData[0];
 
     const { data: likesData } = await supabase
       .from("Likes")
@@ -316,18 +327,23 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       .from("Likes")
       .select("*", { count: "exact", head: true })
       .eq("liked", accountId);
+
+    const { data: commissionPosts } = await supabase
+      .from("Posts")
+      .select("*")
+      .eq("post_by", accountId);
     console.log(likeCount);
+    console.log(commissionPosts);
     likes = likesData;
-    //SELECT * FROM "Users", "Likes" WHERE "Users".id = "Likes".liked AND "Likes".liked_by = 'f3a468e8-8dbe-42df-a1b2-cac9ad285c09'
     return {
       props: {
-        initialSession: session,
         user: session.user,
         userData: userData?.at(0),
         accountId: accountId,
         isLiked: isLiked,
         likes: likes,
         likeCount: likeCount,
+        commissionPosts: commissionPosts,
       },
     };
   }
