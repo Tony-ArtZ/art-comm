@@ -14,6 +14,7 @@ import {
   Session,
 } from "@supabase/auth-helpers-nextjs";
 import CommissionCard from "../components/CommissionPostCreator";
+import { uuid } from 'uuidv4';
 
 interface CatagoryItem {
   key: string;
@@ -34,6 +35,7 @@ interface PostPrices {
   price: number;
 }
 interface PostTiers {
+  id: string;
   title: string;
   imageBlob: Blob | null;
   prices: PostPrices[];
@@ -76,6 +78,7 @@ export default function CommissionForm({
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
+    console.log(tiers);
   };
 
   const handlePaymentChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -90,16 +93,16 @@ export default function CommissionForm({
     e.preventDefault();
     SetTiers((prev) => {
       const tiersTemp = [...prev];
-      tiersTemp.push({ title: "", imageBlob: null, prices: [] });
+      tiersTemp.push({id:uuid(), title: "", imageBlob: null, prices: [] });
       return tiersTemp;
     });
-    handleAddPrice(tiers.length);
+    handleAddPrice(tiers[tiers.length - 1].id);
   };
 
-  const handleTierTitle = (id: number, value: string) => {
+  const handleTierTitle = (id: string, value: string) => {
     SetTiers((prev) => {
       const tiersTemp = prev.map((tier, index) => {
-        if (index === id) {
+        if (tier.id === id) {
           const tierEditTemp = { ...tier, title: value };
           return tierEditTemp;
         }
@@ -110,15 +113,15 @@ export default function CommissionForm({
   };
 
   const handleTierPriceChannge = (
-    id: number,
+    id: string,
     priceId: number,
     title: string,
     value: number
   ) => {
     console.log(tiers);
     SetTiers((prev) => {
-      const tiersTemp = prev.map((tier, index) => {
-        if (index === id) {
+      const tiersTemp = prev.map((tier, ) => {
+        if (tier.id === id) {
           const prices = tier.prices.map((price, indexPrice) => {
             if (indexPrice === priceId) {
               return { price: value, title: title };
@@ -133,10 +136,10 @@ export default function CommissionForm({
     });
   };
 
-  const handleImageChange = (id: number, imageBlob: Blob) => {
+  const handleImageChange = (id: string, imageBlob: Blob) => {
     SetTiers((prev) => {
       const tiersTemp = prev.map((tier, index) => {
-        if (index === id) {
+        if (tier.id === id) {
           const tierEditTemp = { ...tier, imageBlob: imageBlob };
           return tierEditTemp;
         }
@@ -146,10 +149,10 @@ export default function CommissionForm({
     });
   };
 
-  const handleAddPrice = (id: number) => {
+  const handleAddPrice = (id: string) => {
     SetTiers((prev) => {
-      const tiersTemp = prev.map((tier, index) => {
-        if (index === id) {
+      const tiersTemp = prev.map((tier) => {
+        if (tier.id === id) {
           const pricesTemp = [...tier.prices, { title: "", price: 0 }];
           return { ...tier, prices: pricesTemp };
         }
@@ -166,34 +169,28 @@ export default function CommissionForm({
     } else {
       event.preventDefault();
       const formData = new FormData();
-      formData.append("title", name);
-      formData.append("paymentOption", paymentOption);
-      formData.append("selectedCategories", JSON.stringify(selectedOptions));
       for(let i = 0; i < tiers.length; i++) {
-        const tier = tiers[i]
-        const tierData = new FormData()
-        tierData.append("title", tier.title)
-        tierData.append("imageBlob", tier.imageBlob!)
-        tierData.append("prices", JSON.stringify(tier.prices))
+        formData.append(tiers[i].id, tiers[i].imageBlob!)
       }
+      await fetch("/api/uploadcommissionpostimage", {method:"POST", body: formData})
 
-      try {
-        SetLoading(true);
-        await fetch("/api/createcommissionpost", {
-          method: "POST",
-          body: formData,
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (!data.error) {
-              SetLoading(false);
-              toast.success("Success");
-              router.push(`/profile/${user.id}`);
-            } else throw data.error;
-          });
-      } catch (error) {
-        console.log(error);
-      }
+      // try {
+      //   SetLoading(true);
+      //   await fetch("/api/createcommissionpost", {
+      //     method: "POST",
+      //     body: formData,
+      //   })
+      //     .then((res) => res.json())
+      //     .then((data) => {
+      //       if (!data.error) {
+      //         SetLoading(false);
+      //         toast.success("Success");
+      //         router.push(`/profile/${user.id}`);
+      //       } else throw data.error;
+      //     });
+      // } catch (error) {
+      //   console.log(error);
+      // }
     }
   };
 
@@ -238,12 +235,11 @@ export default function CommissionForm({
           {tiers?.map((post, index) => {
             return (
               <CommissionCard
-                tierIndex={index}
                 post={post}
                 fileReader={fileReaderRef.current}
                 handleTierPriceChange={handleTierPriceChannge}
                 handleImageChange={handleImageChange}
-                key={index}
+                key={post.id}
                 handleAddPrice={handleAddPrice}
                 handleTierTitle={handleTierTitle}
               />

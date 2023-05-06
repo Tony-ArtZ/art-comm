@@ -7,6 +7,7 @@ interface PostPrices {
   price: number;
 }
 interface PostTiers {
+  id:string;
   title: string;
   imageBlob: Blob | null;
   prices: PostPrices[];
@@ -19,12 +20,12 @@ const PriceContainer = ({
   price,
   handleTierPriceChange,
 }: {
-  tierId: number;
+  tierId: string;
   id: number;
   title: string;
   price: number;
   handleTierPriceChange: (
-    id: number,
+    id: string,
     priceId: number,
     title: string,
     value: number
@@ -62,7 +63,6 @@ const PriceContainer = ({
 };
 
 export default function CommissionCard({
-  tierIndex,
   post,
   handleTierPriceChange,
   handleImageChange,
@@ -70,17 +70,16 @@ export default function CommissionCard({
   handleTierTitle,
   fileReader,
 }: {
-  tierIndex: number;
   post: PostTiers;
   handleTierPriceChange: (
-    id: number,
+    id: string,
     priceId: number,
     title: string,
     value: number
   ) => void;
-  handleAddPrice: (id: number) => void;
-  handleImageChange: (id:number, imageBlob:Blob) => void;
-  handleTierTitle: (id: number, value: string) => void;
+  handleAddPrice: (id: string) => void;
+  handleImageChange: (id:string, imageBlob:Blob) => void;
+  handleTierTitle: (id: string, value: string) => void;
   fileReader: FileReader | null;
 }) {
   const [imagePreview, SetImagePreview] = useState<null | string>(null);
@@ -92,7 +91,7 @@ export default function CommissionCard({
     };
 
     fileReader?.readAsDataURL(post.imageBlob);
-  }, [post.imageBlob]);
+  }, [post.imageBlob, fileReader]);
 
   return (
     <div className="p-4 my-4 border-4 border-solid min-h-max shrink-0 border-interactive rounded-xl bg-secondary">
@@ -100,7 +99,7 @@ export default function CommissionCard({
         required
         onChange={(e) => {
           e.preventDefault();
-          handleTierTitle(tierIndex, e.target.value);
+          handleTierTitle(post.id, e.target.value);
         }}
         placeholder="Title"
         value={post.title}
@@ -108,15 +107,15 @@ export default function CommissionCard({
       />
       <div>
         <input
-          id={tierIndex.toString()}
+          id={post.id}
           type="file"
-          onChange={(e)=>{e.preventDefault(); e.target.files && handleImageChange(tierIndex, e.target.files[0])}}
+          onChange={(e)=>{e.preventDefault(); e.target.files && handleImageChange(post.id, e.target.files[0])}}
           required
           accept="image/png, image/jpeg"
           className="-z-50  absolute bottom-[1000px] hidden"
         />
         <label
-          htmlFor={tierIndex.toString()}
+          htmlFor={post.id.toString()}
           className="mb-4 grid place-items-center"
         >
           {!imagePreview ? (
@@ -139,13 +138,13 @@ export default function CommissionCard({
 
         <table className="w-full">
           <tbody>
-            {post.prices?.map((post, index) => (
+            {post.prices?.map((postPrice, index) => (
               <PriceContainer
                 key={index}
-                tierId={tierIndex}
+                tierId={post.id}
                 id={index}
-                price={post.price}
-                title={post.title}
+                price={postPrice.price}
+                title={postPrice.title}
                 handleTierPriceChange={handleTierPriceChange}
               />
             ))}
@@ -154,7 +153,7 @@ export default function CommissionCard({
         <button
           onClick={(e) => {
             e.preventDefault();
-            handleAddPrice(tierIndex);
+            handleAddPrice(post.id);
           }}
           className="h-8 text-sm btn-secondary"
         >
