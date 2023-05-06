@@ -6,9 +6,13 @@ import Image from "next/image";
 import { CircleLoader } from "react-spinners";
 import { Slide, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {useRouter} from "next/router";
-import {GetServerSidePropsContext} from "next";
-import {createServerSupabaseClient, User, Session} from "@supabase/auth-helpers-nextjs";
+import { useRouter } from "next/router";
+import { GetServerSidePropsContext } from "next";
+import {
+  createServerSupabaseClient,
+  User,
+  Session,
+} from "@supabase/auth-helpers-nextjs";
 import CommissionCard from "../components/CommissionPostCreator";
 
 interface CatagoryItem {
@@ -16,7 +20,6 @@ interface CatagoryItem {
   value: number;
   selected: boolean;
 }
-
 
 type ArtCatagory = "sketch" | "lineArt" | "shaded";
 type ArtSizeType = "portrait" | "halfBody" | "fullBody";
@@ -27,28 +30,34 @@ type PriceChangeHandlerType = (
 ) => void;
 
 interface PostPrices {
-    title: string;
-    price: number;
+  title: string;
+  price: number;
 }
 interface PostTiers {
-    title: string;
-    imageUrl: string;
-    prices: PostPrices[]
+  title: string;
+  imageBlob: Blob | null;
+  prices: PostPrices[];
 }
 interface PostType {
-    title: string;
-    categories: string[];
-    paymentMethod: "PaymentFirst"|"HalfUpfront"|"PaymentAfter";
-    tiers: PostTiers[]
+  title: string;
+  categories: string[];
+  paymentMethod: "PaymentFirst" | "HalfUpfront" | "PaymentAfter";
+  tiers: PostTiers[];
 }
 
-export default function CommissionForm({session, user}:{session: Session, user: User}) {
+export default function CommissionForm({
+  session,
+  user,
+}: {
+  session: Session;
+  user: User;
+}) {
   const [name, setName] = useState("");
   const [paymentOption, setPaymentOption] = useState("");
   const [selectedOptions, SetSelectedOptions] = useState<string[] | null>([]);
   const [loading, SetLoading] = useState(false);
   const [formData, SetFormData] = useState<PostType>();
-  const [tiers, SetTiers] = useState<PostTiers[]>([{title:"HAS", prices:[{title:"", price:0}], imageUrl:""}]);
+  const [tiers, SetTiers] = useState<PostTiers[]>([]);
 
   const catagory: CatagoryItem[] = [
     { key: "2D", value: 1, selected: false },
@@ -58,7 +67,7 @@ export default function CommissionForm({session, user}:{session: Session, user: 
 
   const fileReaderRef = useRef<null | FileReader>(null);
 
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     fileReaderRef.current = new FileReader();
@@ -77,14 +86,78 @@ export default function CommissionForm({session, user}:{session: Session, user: 
     SetSelectedOptions(options);
   };
 
-  const handleTierPriceChannge = (id:number, priceId:number, title:string, value:number) => {
-    console.log(tiers)
-    SetTiers((prev)=>{
-        const tiers = [...prev]
-        tiers[id].prices[priceId]= {title, price:value}
-        return  tiers
-    })
-  }
+  const handleAddTier = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    SetTiers((prev) => {
+      const tiersTemp = [...prev];
+      tiersTemp.push({ title: "", imageBlob: null, prices: [] });
+      return tiersTemp;
+    });
+    handleAddPrice(tiers.length);
+  };
+
+  const handleTierTitle = (id: number, value: string) => {
+    SetTiers((prev) => {
+      const tiersTemp = prev.map((tier, index) => {
+        if (index === id) {
+          const tierEditTemp = { ...tier, title: value };
+          return tierEditTemp;
+        }
+        return tier;
+      });
+      return tiersTemp;
+    });
+  };
+
+  const handleTierPriceChannge = (
+    id: number,
+    priceId: number,
+    title: string,
+    value: number
+  ) => {
+    console.log(tiers);
+    SetTiers((prev) => {
+      const tiersTemp = prev.map((tier, index) => {
+        if (index === id) {
+          const prices = tier.prices.map((price, indexPrice) => {
+            if (indexPrice === priceId) {
+              return { price: value, title: title };
+            }
+            return price;
+          });
+          return { ...tier, prices: prices };
+        }
+        return tier;
+      });
+      return tiersTemp;
+    });
+  };
+
+  const handleImageChange = (id: number, imageBlob: Blob) => {
+    SetTiers((prev) => {
+      const tiersTemp = prev.map((tier, index) => {
+        if (index === id) {
+          const tierEditTemp = { ...tier, imageBlob: imageBlob };
+          return tierEditTemp;
+        }
+        return tier;
+      });
+      return tiersTemp;
+    });
+  };
+
+  const handleAddPrice = (id: number) => {
+    SetTiers((prev) => {
+      const tiersTemp = prev.map((tier, index) => {
+        if (index === id) {
+          const pricesTemp = [...tier.prices, { title: "", price: 0 }];
+          return { ...tier, prices: pricesTemp };
+        }
+        return tier;
+      });
+      return tiersTemp;
+    });
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -96,6 +169,13 @@ export default function CommissionForm({session, user}:{session: Session, user: 
       formData.append("title", name);
       formData.append("paymentOption", paymentOption);
       formData.append("selectedCategories", JSON.stringify(selectedOptions));
+      for(let i = 0; i < tiers.length; i++) {
+        const tier = tiers[i]
+        const tierData = new FormData()
+        tierData.append("title", tier.title)
+        tierData.append("imageBlob", tier.imageBlob!)
+        tierData.append("prices", JSON.stringify(tier.prices))
+      }
 
       try {
         SetLoading(true);
@@ -108,7 +188,7 @@ export default function CommissionForm({session, user}:{session: Session, user: 
             if (!data.error) {
               SetLoading(false);
               toast.success("Success");
-              router.push(`/profile/${user.id}`)
+              router.push(`/profile/${user.id}`);
             } else throw data.error;
           });
       } catch (error) {
@@ -130,11 +210,15 @@ export default function CommissionForm({session, user}:{session: Session, user: 
         </div>
       )}
       <div className=" mt-24 items-center justify-center border-8 border-solid border-secondary flex-col w-96 xl:w-[580px]  p-8 m-2 xl:p-16 rounded-3xl flex bg-primary drop-shadow-glow ">
-        <h1 className="text-4xl  xl:text-[52px] text-heading drop-shadow-glow font-Inter ">
+        <h1 className="text-4xl xl:text-[52px] text-heading drop-shadow-glow font-Inter ">
           Make a Commission
         </h1>
-        <form id="form" onSubmit={handleSubmit} className="mt-4 mb-8">
-          <label className="z-20 bottom-9 left-7 text-interactive drop-shadow-glow font-Inter">
+        <form
+          id="form"
+          onSubmit={handleSubmit}
+          className="mt-4 mb-8 text-center"
+        >
+          <label className="z-20 block w-full min-w-full text-interactive text-start drop-shadow-glow font-Inter">
             Title:
           </label>
           <input
@@ -151,12 +235,23 @@ export default function CommissionForm({session, user}:{session: Session, user: 
           <h1 className="text-xl text-center text-heading font-Inter">
             Submit Examples
           </h1>
-          {tiers?.map((post, index)=>
-          {
-            return(
-            <CommissionCard tierIndex={index} title={post.title} prices={post.prices} fileReader={fileReaderRef.current} handleTierPriceChange={handleTierPriceChannge} key={index}/>
-            )
+          {tiers?.map((post, index) => {
+            return (
+              <CommissionCard
+                tierIndex={index}
+                post={post}
+                fileReader={fileReaderRef.current}
+                handleTierPriceChange={handleTierPriceChannge}
+                handleImageChange={handleImageChange}
+                key={index}
+                handleAddPrice={handleAddPrice}
+                handleTierTitle={handleTierTitle}
+              />
+            );
           })}
+          <button onClick={handleAddTier} className="btn-secondary">
+            Add Tiers
+          </button>
           <label className="flex flex-col items-center justify-center w-full mt-4 mb-4 text-xl gap-2 text-heading font-Inter">
             Payment Preference
             <select
