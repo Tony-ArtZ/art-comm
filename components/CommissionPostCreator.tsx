@@ -9,7 +9,7 @@ interface PostPrices {
 interface PostTiers {
   id:string;
   title: string;
-  imageBlob: Blob | null;
+  imageUrl: string;
   prices: PostPrices[];
 }
 
@@ -66,6 +66,7 @@ export default function CommissionCard({
   post,
   handleTierPriceChange,
   handleImageChange,
+  imageBlobs,
   handleAddPrice,
   handleTierTitle,
   fileReader,
@@ -79,19 +80,21 @@ export default function CommissionCard({
   ) => void;
   handleAddPrice: (id: string) => void;
   handleImageChange: (id:string, imageBlob:Blob) => void;
+  imageBlobs:{[index:string]:Blob|null}
   handleTierTitle: (id: string, value: string) => void;
   fileReader: FileReader | null;
 }) {
   const [imagePreview, SetImagePreview] = useState<null | string>(null);
 
   useEffect(() => {
-    if (!post.imageBlob || !fileReader) return;
+    const image = imageBlobs[post.id]
+    if (!image || !fileReader) return;
     fileReader.onloadend = () => {
       SetImagePreview(fileReader?.result as string);
     };
 
-    fileReader?.readAsDataURL(post.imageBlob);
-  }, [post.imageBlob, fileReader]);
+    fileReader?.readAsDataURL(image);
+  }, [imageBlobs[post.id], fileReader]);
 
   return (
     <div className="p-4 my-4 border-4 border-solid min-h-max shrink-0 border-interactive rounded-xl bg-secondary">

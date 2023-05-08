@@ -28,34 +28,34 @@ export const config = {
 
 //upload all images
 const uploadImageBlob = (
-  files: FilesFormat,
+  files: formidable.Files,
   supabase: SupabaseClient,
   id: string
-): Promise<ImageUrlResponse> => {
+): Promise<ImageUrlObjectFormat> => {
   return new Promise(async (resolve, reject) => {
     try {
-      const imageUrls: ImageUrlResponse = [];
+      const imageUrls: ImageUrlObjectFormat = {};
       const fileNames = Object.keys(files) as Array<keyof FilesFormat>;
 
       for (const file of fileNames) {
-        const fileContent = fs.readFileSync(files[file]!.filepath);
+        const fileContent = fs.readFileSync((files[file] as formidable.File)!.filepath);
         //const blob = new Blob([fileContent], { type: files[file]?.mimetype! });
         const path = `${id}/${file}`;
         const { data, error } = await supabase.storage
           .from("posts")
           .upload(path, fileContent, {
-            contentType: files[file]?.mimetype!,
+            contentType: (files[file] as formidable.File)!.mimetype!,
             upsert: true,
           });
 
         if (!error) {
-
+    imageUrls[
+            file
+          ] = `https://wybevfopeppmmtlbjqtt.supabase.co/storage/v1/object/public/posts/${data.path}`;   
         }
 
-        console.log(data, error);
       }
 
-      console.log(imageUrls);
       resolve(imageUrls);
     } catch (error) {
       reject(error);
@@ -79,7 +79,8 @@ const uploadFormData = (
         console.error(err);
         res.status(500).json({ error: "Failed to parse form data" });
       } else {
-        console.log(files)
+        const img = await uploadImageBlob(files,supabase,fields.id as string)
+       res.json(img)
       }
     }
   );
@@ -108,6 +109,6 @@ export default async function handler(
   console.log(session.expires_in);
 
   if (method === "POST") {
-    uploadFormData(req, res, user, supabase);
+    await uploadFormData(req, res, user, supabase);
   }
 }

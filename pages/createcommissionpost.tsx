@@ -14,7 +14,7 @@ import {
   Session,
 } from "@supabase/auth-helpers-nextjs";
 import CommissionCard from "../components/CommissionPostCreator";
-import { uuid } from 'uuidv4';
+import { uuid } from "uuidv4";
 
 interface CatagoryItem {
   key: string;
@@ -22,31 +22,35 @@ interface CatagoryItem {
   selected: boolean;
 }
 
-type ArtCatagory = "sketch" | "lineArt" | "shaded";
-type ArtSizeType = "portrait" | "halfBody" | "fullBody";
-type PriceChangeHandlerType = (
-  value: number,
-  catagory: ArtCatagory,
-  sizeType: ArtSizeType
-) => void;
+type PaymentType = "PaymentFirst" | "HalfUpfront" | "PaymentAfter";
 
 interface PostPrices {
   title: string;
   price: number;
 }
+
 interface PostTiers {
   id: string;
   title: string;
-  imageBlob: Blob | null;
+  imageUrl: string;
   prices: PostPrices[];
 }
+
 interface PostType {
+  id:string;
   title: string;
   categories: string[];
-  paymentMethod: "PaymentFirst" | "HalfUpfront" | "PaymentAfter";
+  paymentMethod: PaymentType;
   tiers: PostTiers[];
 }
 
+interface TierImage {
+  [index: string]: Blob | null;
+}
+
+interface ImageUrlResponse {
+  [index: string]: string;
+}
 export default function CommissionForm({
   session,
   user,
@@ -55,11 +59,12 @@ export default function CommissionForm({
   user: User;
 }) {
   const [name, setName] = useState("");
-  const [paymentOption, setPaymentOption] = useState("");
-  const [selectedOptions, SetSelectedOptions] = useState<string[] | null>([]);
+  const [paymentOption, setPaymentOption] =
+    useState<PaymentType>("PaymentFirst");
+  const [selectedOptions, SetSelectedOptions] = useState<string[] | null>(null);
   const [loading, SetLoading] = useState(false);
-  const [formData, SetFormData] = useState<PostType>();
   const [tiers, SetTiers] = useState<PostTiers[]>([]);
+  const [images, SetImages] = useState<TierImage>({});
 
   const catagory: CatagoryItem[] = [
     { key: "2D", value: 1, selected: false },
@@ -82,7 +87,7 @@ export default function CommissionForm({
   };
 
   const handlePaymentChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setPaymentOption(event.target.value);
+    setPaymentOption(event.target.value as PaymentType);
   };
 
   const selectedOptionsChangeHandler = (options: string[] | null) => {
@@ -93,10 +98,9 @@ export default function CommissionForm({
     e.preventDefault();
     SetTiers((prev) => {
       const tiersTemp = [...prev];
-      tiersTemp.push({id:uuid(), title: "", imageBlob: null, prices: [] });
+      tiersTemp.push({ id: uuid(), title: "", imageUrl: "", prices: [{title:"", price:0}] });
       return tiersTemp;
     });
-    handleAddPrice(tiers[tiers.length - 1].id);
   };
 
   const handleTierTitle = (id: string, value: string) => {
@@ -118,9 +122,8 @@ export default function CommissionForm({
     title: string,
     value: number
   ) => {
-    console.log(tiers);
     SetTiers((prev) => {
-      const tiersTemp = prev.map((tier, ) => {
+      const tiersTemp = prev.map((tier) => {
         if (tier.id === id) {
           const prices = tier.prices.map((price, indexPrice) => {
             if (indexPrice === priceId) {
@@ -137,15 +140,10 @@ export default function CommissionForm({
   };
 
   const handleImageChange = (id: string, imageBlob: Blob) => {
-    SetTiers((prev) => {
-      const tiersTemp = prev.map((tier, index) => {
-        if (tier.id === id) {
-          const tierEditTemp = { ...tier, imageBlob: imageBlob };
-          return tierEditTemp;
-        }
-        return tier;
-      });
-      return tiersTemp;
+    SetImages((prev) => {
+      const tempImages = { ...prev, [id]: imageBlob };
+      console.log(tempImages);
+      return tempImages;
     });
   };
 
@@ -168,29 +166,50 @@ export default function CommissionForm({
       toast.error("Please select a category");
     } else {
       event.preventDefault();
+      const postId = uuid()
       const formData = new FormData();
-      for(let i = 0; i < tiers.length; i++) {
-        formData.append(tiers[i].id, tiers[i].imageBlob!)
+      formData.append("id", postId)
+      for (let i in images) {
+        formData.append(i, images[i]!);
       }
-      await fetch("/api/uploadcommissionpostimage", {method:"POST", body: formData})
+      try {
+        SetLoading(true);
+        fetch("/api/uploadcommissionpostimage", {
+          method: "POST",
+          body: formData,
+        })
+          .then((res) => res.json())
+          .then((dataUrlRes: ImageUrlResponse) => {
+            SetTiers((prev) => {
+              const tiers = prev.map((tier, index) => {
+                return { ...tier, imageUrl: dataUrlRes[tier.id] };
+              });
+              return tiers;
+            });
+            const uploadData: PostType = {
+              id: postId,
+              title: name,
+              paymentMethod: paymentOption,
+              categories: selectedOptions,
+              tiers: tiers,
+            };
 
-      // try {
-      //   SetLoading(true);
-      //   await fetch("/api/createcommissionpost", {
-      //     method: "POST",
-      //     body: formData,
-      //   })
-      //     .then((res) => res.json())
-      //     .then((data) => {
-      //       if (!data.error) {
-      //         SetLoading(false);
-      //         toast.success("Success");
-      //         router.push(`/profile/${user.id}`);
-      //       } else throw data.error;
-      //     });
-      // } catch (error) {
-      //   console.log(error);
-      // }
+            fetch("/api/createcommissionpost/", {
+              method: "POST",
+              body: JSON.stringify(uploadData),
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                if (!data.error) {
+                  SetLoading(false);
+                  toast.success("Success");
+                  router.push(`/profile/${user.id}`);
+                } else throw data.error;
+              });
+          });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -239,6 +258,7 @@ export default function CommissionForm({
                 fileReader={fileReaderRef.current}
                 handleTierPriceChange={handleTierPriceChannge}
                 handleImageChange={handleImageChange}
+                imageBlobs={images}
                 key={post.id}
                 handleAddPrice={handleAddPrice}
                 handleTierTitle={handleTierTitle}

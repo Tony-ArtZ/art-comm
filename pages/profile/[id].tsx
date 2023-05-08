@@ -17,26 +17,29 @@ import { profile } from "console";
 import { CircleLoader } from "react-spinners";
 import CommissionPostProfile from "../../components/CommissionPostProfile";
 
-interface CommissionPost {
-  id: string;
-  post_title: string;
-  post_by: string;
-  sketch_portrait_price: number;
-  sketch_half_body_price: number;
-  sketch_full_body_price: number;
-  line_art_portrait_price: number;
-  line_art_half_body_price: number;
-  line_art_full_body_price: number;
-  shaded_portrait_price: number;
-  shaded_half_body_price: number;
-  shaded_full_body_price: number;
-  sketch_image_url: string;
-  line_art_image_url: string;
-  shaded_image_url: string;
-  payment_option: string;
-  categories: string[];
+
+type PaymentType = "PaymentFirst" | "HalfUpfront" | "PaymentAfter";
+
+interface PostPrices {
+  title: string;
+  price: number;
 }
 
+interface PostTiers {
+  id: string;
+  title: string;
+  imageUrl: string;
+  prices: PostPrices[];
+}
+
+interface PostType {
+  id:string;
+  title: string;
+  created_by:string;
+  categories: string[];
+  payment_option: PaymentType;
+  tiers: PostTiers[];
+}
 interface UpdatedData {
   profile_picture?: string;
   banner_picture?: string;
@@ -58,7 +61,7 @@ export default function Home({
   isLiked: boolean;
   likes: any;
   likeCount: number;
-  commissionPosts: CommissionPost[];
+  commissionPosts: PostType[];
 }) {
   const router = useRouter();
   const owner = userData ? userData.id == user.id : false;
@@ -179,7 +182,6 @@ export default function Home({
             >
               {Liked ? <AiFillHeart /> : <AiOutlineHeart />}
               <h1 className="text-sm text-interactive font-Inter">
-                {" "}
                 {likeCount} {likeCount > 1 ? "Likes" : "Like"}
               </h1>
             </div>
@@ -208,9 +210,9 @@ export default function Home({
             Become An Artist Now!
           </button>
         )}
-        {commissionPosts.length > 0 && (
+        {commissionPosts?.length > 0 && (
           <div className="mb-4">
-            {commissionPosts.map((post) => (
+            {commissionPosts?.map((post) => (
               <CommissionPostProfile key={post.id} post={post} />
             ))}
           </div>
@@ -331,9 +333,10 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     const { data: commissionPosts } = await supabase
       .from("Posts")
       .select("*")
-      .eq("post_by", accountId);
+      .eq("created_by", accountId);
     console.log(likeCount);
     console.log(commissionPosts);
+    
     likes = likesData;
     return {
       props: {
