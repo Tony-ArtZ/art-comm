@@ -17,7 +17,7 @@ interface ImageUrlObjectFormat {
   [index: string]: string;
 }
 
-type ImageUrlResponse = ImageUrlObjectFormat[]|null
+type ImageUrlResponse = ImageUrlObjectFormat[] | null;
 
 //We used a formData for uploading Image Blobs to this endpoint
 export const config = {
@@ -38,7 +38,9 @@ const uploadImageBlob = (
       const fileNames = Object.keys(files) as Array<keyof FilesFormat>;
 
       for (const file of fileNames) {
-        const fileContent = fs.readFileSync((files[file] as formidable.File)!.filepath);
+        const fileContent = fs.readFileSync(
+          (files[file] as formidable.File)!.filepath
+        );
         //const blob = new Blob([fileContent], { type: files[file]?.mimetype! });
         const path = `${id}/${file}`;
         const { data, error } = await supabase.storage
@@ -49,11 +51,10 @@ const uploadImageBlob = (
           });
 
         if (!error) {
-    imageUrls[
+          imageUrls[
             file
-          ] = `https://wybevfopeppmmtlbjqtt.supabase.co/storage/v1/object/public/posts/${data.path}`;   
+          ] = `https://wybevfopeppmmtlbjqtt.supabase.co/storage/v1/object/public/posts/${data.path}`;
         }
-
       }
 
       resolve(imageUrls);
@@ -72,18 +73,20 @@ const uploadFormData = (
 ) => {
   const form = new formidable.IncomingForm();
   console.log(req.body);
-  form.parse(
-    req,
-    async (err, fields, files: formidable.Files) => {
-      if (err) {
-        console.error(err);
-        res.status(500).json({ error: "Failed to parse form data" });
-      } else {
-        const img = await uploadImageBlob(files,supabase,fields.id as string)
-       res.json(img)
+  form.parse(req, async (err, fields, files: formidable.Files) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to parse form data" });
+    } else {
+      try {
+        const img = await uploadImageBlob(files, supabase, fields.id as string);
+        console.log(img);
+        res.json(img);
+      } catch (error) {
+        res.status(500).json({ error });
       }
     }
-  );
+  });
 };
 
 export default async function handler(

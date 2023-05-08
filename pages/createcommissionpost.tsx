@@ -37,7 +37,7 @@ interface PostTiers {
 }
 
 interface PostType {
-  id:string;
+  id: string;
   title: string;
   categories: string[];
   paymentMethod: PaymentType;
@@ -98,7 +98,12 @@ export default function CommissionForm({
     e.preventDefault();
     SetTiers((prev) => {
       const tiersTemp = [...prev];
-      tiersTemp.push({ id: uuid(), title: "", imageUrl: "", prices: [{title:"", price:0}] });
+      tiersTemp.push({
+        id: uuid(),
+        title: "",
+        imageUrl: "",
+        prices: [{ title: "", price: 0 }],
+      });
       return tiersTemp;
     });
   };
@@ -166,9 +171,9 @@ export default function CommissionForm({
       toast.error("Please select a category");
     } else {
       event.preventDefault();
-      const postId = uuid()
+      const postId = uuid();
       const formData = new FormData();
-      formData.append("id", postId)
+      formData.append("id", postId);
       for (let i in images) {
         formData.append(i, images[i]!);
       }
@@ -179,33 +184,37 @@ export default function CommissionForm({
           body: formData,
         })
           .then((res) => res.json())
-          .then((dataUrlRes: ImageUrlResponse) => {
-            SetTiers((prev) => {
-              const tiers = prev.map((tier, index) => {
-                return { ...tier, imageUrl: dataUrlRes[tier.id] };
+          .then((dataUrlRes) => {
+            if (!dataUrlRes.error) {
+              SetTiers((prev) => {
+                const tiers = prev.map((tier, index) => {
+                  return { ...tier, imageUrl: dataUrlRes[tier.id] };
+                });
+                return tiers;
               });
-              return tiers;
-            });
-            const uploadData: PostType = {
-              id: postId,
-              title: name,
-              paymentMethod: paymentOption,
-              categories: selectedOptions,
-              tiers: tiers,
-            };
+              const uploadData: PostType = {
+                id: postId,
+                title: name,
+                paymentMethod: paymentOption,
+                categories: selectedOptions,
+                tiers: tiers,
+              };
 
-            fetch("/api/createcommissionpost/", {
-              method: "POST",
-              body: JSON.stringify(uploadData),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                if (!data.error) {
-                  SetLoading(false);
-                  toast.success("Success");
-                  router.push(`/profile/${user.id}`);
-                } else throw data.error;
-              });
+              fetch("/api/createcommissionpost/", {
+                method: "POST",
+                body: JSON.stringify(uploadData),
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  if (!data.error) {
+                    SetLoading(false);
+                    toast.success("Success");
+                    router.push(`/profile/${user.id}`);
+                  } else throw data.error;
+                });
+            } else {
+              toast.error(dataUrlRes.error);
+            }
           });
       } catch (error) {
         console.log(error);
