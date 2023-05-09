@@ -185,19 +185,18 @@ export default function CommissionForm({
         })
           .then((res) => res.json())
           .then((dataUrlRes) => {
+            console.log(dataUrlRes)
             if (!dataUrlRes.error) {
-              SetTiers((prev) => {
-                const tiers = prev.map((tier, index) => {
-                  return { ...tier, imageUrl: dataUrlRes[tier.id] };
-                });
-                return tiers;
-              });
+              const currentTiers = [
+                ...tiers.map((tier)=>{
+                return {...tier, imageUrl:dataUrlRes[tier.id]}
+              })]
               const uploadData: PostType = {
                 id: postId,
                 title: name,
                 paymentMethod: paymentOption,
                 categories: selectedOptions,
-                tiers: tiers,
+                tiers: currentTiers,
               };
 
               fetch("/api/createcommissionpost/", {

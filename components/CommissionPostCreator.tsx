@@ -48,6 +48,7 @@ const PriceContainer = ({
       <td className="flex flex-row items-center justify-center p-1">
         <input
           type="number"
+          maxLength={20}
           value={price}
           placeholder="USD $"
           onChange={(e) =>
