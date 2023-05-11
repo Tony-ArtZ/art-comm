@@ -15,7 +15,7 @@ export default function NavBar ({user, userData, signOut, search, handleSearchIn
   return (
     <>
       <SideBar user={user} userData={userData} showSideBar={showSideBar} handleSideBarClosing={handleSideBarClosing} signOut={signOut}/>
-      <nav className="flex flex-row justify-between w-screen px-4 py-5 sm:bg-none md:shadow-none bg-secondary sm:px-8">
+      <nav className="flex flex-row justify-between w-screen px-4 py-5 items-center sm:bg-none md:shadow-none bg-secondary sm:px-8">
         <button onClick={()=> SetShowSideBar(true)}>
           <BiMenu className="text-interactive drop-shadow-glow sm:text-[55px] text-5xl" />
         </button>
@@ -45,7 +45,7 @@ export default function NavBar ({user, userData, signOut, search, handleSearchIn
               <Link href="/signin" className="hidden list-item sm:flex">
                 Sign In
               </Link>
-              <Link href="/register" className="list-item">
+              <Link href="/register" className="list-item px-1">
                 Join Us
               </Link>
             </>

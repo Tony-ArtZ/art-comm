@@ -3,20 +3,26 @@ import Hero from "../layouts/Hero";
 import FeaturedFeed from "../layouts/featured";
 import {
   createServerSupabaseClient,
-  User
-} from '@supabase/auth-helpers-nextjs';
-import { GetServerSidePropsContext } from 'next';
-import {useEffect} from "react";
-import React from 'react'
+  User,
+} from "@supabase/auth-helpers-nextjs";
+import { GetServerSidePropsContext } from "next";
+import { useEffect } from "react";
+import React from "react";
 
-
-export default function Home({ user, userData }: { user: User, userData:any }){
-  
-  useEffect(()=>{console.log(user)},[user])
-  const test = (e:React.MouseEvent<HTMLButtonElement>)=>{
-    e.preventDefault()
-    console.log("hdh")
-  }
+export default function Home({
+  user,
+  userData,
+}: {
+  user: User;
+  userData: any;
+}) {
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
+  const test = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    console.log("hdh");
+  };
   return (
     <>
       <Head>
@@ -26,7 +32,7 @@ export default function Home({ user, userData }: { user: User, userData:any }){
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="w-screen overflow-hidden bg-primary">
-        <Hero user={user} userData={userData}/>
+        <Hero user={user} userData={userData} />
         <FeaturedFeed />
       </main>
     </>
@@ -38,44 +44,37 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const supabase = createServerSupabaseClient(ctx);
   // Check if we have a session
   const {
-    data: { session }
+    data: { session },
   } = await supabase.auth.getSession();
 
-  let userData = null
+  let userData = null;
 
-  if (!session)
-    return {props:{user:null}};
+  if (!session) return { props: { user: null } };
   else {
-  const { data, error } = await supabase
-  .from('Users')
-  .select()
-  .eq('id', session.user.id)
-  userData = data?.at(0)?data.at(0):null
-  console.log(data, error)
-  if(!userData){
-    const updates = {
-      id: session?.user.id,
-      user_name: session?.user.user_metadata.name,
-      profile_picture: session?.user.user_metadata.avatar_url
-    };
-    let { error } = await supabase.from('Users').upsert(updates)
-    if(!error){
-    /*return {
-      redirect: {
-        destination: '/',
-        permanent: false
-      }
-      };*/
+    const { data, error } = await supabase
+      .from("Users")
+      .select()
+      .eq("id", session.user.id);
+    userData = data?.at(0) ? data.at(0) : null;
+    if (!userData) {
+      const updates = {
+        id: session?.user.id,
+        user_name: session?.user.user_metadata.name,
+        profile_picture: session?.user.user_metadata.avatar_url,
+      };
+      const { error } = await supabase.from("Users").upsert(updates);
 
+      const {data:likeCount} = await supabase.from("Likes").select("")
+
+      }
     }
-  }
-}
+
 
   return {
     props: {
       initialSession: session,
       user: session.user,
-      userData: userData 
-    }
+      userData: userData,
+    },
   };
 };
