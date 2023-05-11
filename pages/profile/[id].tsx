@@ -223,7 +223,7 @@ export default function Home({
             className={`btn-secondary ${!showingLikes ? inActiveButton : ""}`}
             onClick={() => SetShowingLikes(true)}
           >
-            Likes
+            Liked by
           </button>
           <button
             className={`btn-secondary ${showingLikes ? inActiveButton : ""}`}
@@ -322,8 +322,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
     const { data: likesData } = await supabase
       .from("Likes")
-      .select(`Users!Likes_liked_fkey(id, user_name, profile_picture)`)
-      .eq("liked_by", accountId);
+      .select(`Users!Likes_liked_by_fkey(id, user_name, profile_picture)`)
+      .eq("liked", accountId);
 
     const { count: likeCount } = await supabase
       .from("Likes")

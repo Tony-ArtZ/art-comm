@@ -7,23 +7,22 @@ import {BiMenu} from "react-icons/bi";
 import {FaSearch} from "react-icons/fa";
 import SideBar from "./SideBar";
 
-export default function NavBar ({user, userData, signOut, router}: {user: User, userData: any, signOut: (e:React.MouseEvent<HTMLButtonElement>)=>Promise<void>, router:NextRouter}) {
+export default function NavBar ({user, userData, signOut, search, handleSearchInput}: {user: User, userData: any, signOut: (e:React.MouseEvent<HTMLButtonElement>)=>Promise<void>, router:NextRouter, search:(e:React.MouseEvent<HTMLButtonElement>)=>void, handleSearchInput:(e:React.ChangeEvent<HTMLInputElement>)=>void}) {
   const [showSideBar, SetShowSideBar] = useState(false)
-  const [searchQuery, SetSearchQuery] = useState("")
   const handleSideBarClosing = () => {
     SetShowSideBar(false)
   }
   return (
     <>
       <SideBar user={user} userData={userData} showSideBar={showSideBar} handleSideBarClosing={handleSideBarClosing} signOut={signOut}/>
-      <nav className="absolute flex flex-row justify-between w-screen px-4 py-5 sm:bg-none md:shadow-none bg-secondary sm:px-8">
+      <nav className="flex flex-row justify-between w-screen px-4 py-5 sm:bg-none md:shadow-none bg-secondary sm:px-8">
         <button onClick={()=> SetShowSideBar(true)}>
           <BiMenu className="text-interactive drop-shadow-glow sm:text-[55px] text-5xl" />
         </button>
         <div className=" h-11 sm:h-12 2xl:h-14 absolute left-0 right-0 sm:ml-auto sm:mr-auto ml-20 mr-auto xl:w-[400px] 2xl:w-[456px] sm:w-[350px] w-[60vw] flex flex-row justify-center items-center">
-          <input onChange={(e)=>SetSearchQuery(e.target.value)} className=" bg-primary text-white md:text-xl text-xs font-inter shadow-glowLow rounded-[40px] h-full pl-6 w-full outline-none " />
+          <input onChange={handleSearchInput} className=" bg-primary text-white md:text-xl text-sm font-inter shadow-glowLow rounded-[40px] h-full pl-6 w-full outline-none " />
           <div className="h-full 2xl:w-14 sm:w-12 w-11 absolute right-0 rounded-full outline outline-secondary sm:outline-[12px] outline-[8px]" />
-          <button onClick={()=>router.push(`/search/?search=${searchQuery}`)} className="absolute right-0 flex items-center justify-center h-full text-xl text-white rounded-full w-11 shadow-glowLow 2xl:w-14 sm:w-12">
+          <button onClick={search} className="absolute right-0 flex items-center justify-center h-full text-xl text-white rounded-full w-11 shadow-glowLow 2xl:w-14 sm:w-12">
             <FaSearch 
               fontSize="24px"
               className="text-secondary 2xl:text-[24px] sm:text-xl text-lg hover:text-white hover:drop-shadow-glowHigh 2xl:hover:text-3xl sm:hover:text-2xl hover:text-xl transition-all ease-in-out"
@@ -43,9 +42,6 @@ export default function NavBar ({user, userData, signOut, router}: {user: User, 
             </>
           ):(
             <>
-              <Link href="" className="hidden list-item lg:flex">
-                Become An Artist
-              </Link>
               <Link href="/signin" className="hidden list-item sm:flex">
                 Sign In
               </Link>
