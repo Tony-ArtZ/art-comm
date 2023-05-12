@@ -12,17 +12,13 @@ import React from "react";
 export default function Home({
   user,
   userData,
+  likeCount,
 }: {
   user: User;
   userData: any;
+  likeCount: null|number;
 }) {
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
-  const test = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    console.log("hdh");
-  };
+  console.log(likeCount)
   return (
     <>
       <Head>
@@ -32,7 +28,7 @@ export default function Home({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="w-screen overflow-hidden bg-primary">
-        <Hero user={user} userData={userData} />
+        <Hero user={user} userData={userData} likeCount={likeCount}/>
         <FeaturedFeed />
       </main>
     </>
@@ -48,6 +44,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   } = await supabase.auth.getSession();
 
   let userData = null;
+  let likeCount:null|number= null
 
   if (!session) return { props: { user: null } };
   else {
@@ -63,10 +60,11 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         profile_picture: session?.user.user_metadata.avatar_url,
       };
       const { error } = await supabase.from("Users").upsert(updates);
-
-      const {data:likeCount} = await supabase.from("Likes").select("")
-
       }
+
+      const {count} = await supabase.from("Likes").select("*", {count:"exact"}).eq("liked", session.user.id)
+      likeCount = count
+      console.log(count)
     }
 
 
@@ -75,6 +73,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       initialSession: session,
       user: session.user,
       userData: userData,
+      likeCount: likeCount,
     },
   };
 };

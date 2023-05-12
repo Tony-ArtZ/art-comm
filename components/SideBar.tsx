@@ -9,12 +9,14 @@ export default function SideBar({
   userData,
   showSideBar,
   handleSideBarClosing,
+  likeCount,
   signOut,
 }: {
   user: User;
   userData: any;
   showSideBar: boolean;
   handleSideBarClosing: () => void;
+  likeCount:null|number;
   signOut: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
 }) {
   const router = useRouter();
@@ -59,25 +61,27 @@ export default function SideBar({
                 width={64}
                 height={64}
                 alt="Profile"
-                className="w-24 h-24 p-0 m-0 mb-2 border-2 rounded-full border-interactive drop-shadow-glow md:hidden"
+                className="w-24 h-24 p-0 m-0 mb-2 border-4 rounded-full border-interactive drop-shadow-glow md:hidden"
                 src={userData.profile_picture}
               />
               <h2 className="text-2xl text-heading font-Inter">
                 {userData.user_name}
               </h2>
+              <h4 className="mb-2 text-heading text-md font-Inter">Likes: {likeCount}</h4>
               <Link
-                className="text-interactive font-Inter"
+                className="mb-4 text-interactive font-Inter"
                 href={`/profile/${userData.id}`}
               >
                 Go to profile
               </Link>
             </>
           )}
-          {!user && <><h1 className="font-Inter text-heading text-4xl mt-4 mb-1">Hello Friend!</h1><h4 className="mb-4 text-interactive text-lg font-Inter">Welcome to Art-Comm</h4></>}
-          <button className="btn-secondary" onClick={handleStartCreating}>
+          {!user && <><h1 className="mt-4 mb-1 text-4xl font-Inter text-heading">Hello Friend!</h1><h4 className="mb-4 text-lg text-interactive font-Inter">Welcome to Art-Comm</h4></>}
+          <button className="mb-6 btn-secondary" onClick={handleStartCreating}>
             {userData?.artist?"Create Post":"Start Earning"}
           </button>
         </section>
+          <hr className="h-[0.1rem] mx-6 mb-4 border-none rounded-full text-interactive bg-interactive" />
       </div>
       {showSideBar && (
         <div
