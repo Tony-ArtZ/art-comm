@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { IoIosClose, IoMdLogOut } from "react-icons/io";
+import {categories} from '../lib/categories';
 
 export default function SideBar({
   user,
@@ -20,6 +21,7 @@ export default function SideBar({
   signOut: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
 }) {
   const router = useRouter();
+  const categoriesObj = {...categories}
 
   const handleStartCreating = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!user) {
@@ -82,6 +84,12 @@ export default function SideBar({
           </button>
         </section>
           <hr className="h-[0.1rem] mx-6 mb-4 border-none rounded-full text-interactive bg-interactive" />
+          <h1 className="text-heading font-Inter text-xl px-4 text-center mb-2">Browse by categories</h1>
+          <section className="text-interactive font-Inter flex flex-col text-lg px-4 text-center">
+            {
+              Object.keys(categories).map((category)=><Link href={`/search/?search=${category}`} key={category}>{category}</Link>)
+            }
+          </section>
       </div>
       {showSideBar && (
         <div

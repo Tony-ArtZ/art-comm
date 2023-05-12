@@ -56,7 +56,7 @@ export default function MultiSelect({catagory, onChangeSelectionHandler}:{catago
             }
         })}
       </section>
-      <select value={"Hello"} onChange={(e)=>handleDropdownChange(catagoryList[Number(e.target.value)])} className="w-64 h-12 text-sm text-center border-4 border-solid rounded-full font-Inter text-interactive drop-shadow-glow bg-secondary border-interactive">
+      <select value={""} onChange={(e)=>handleDropdownChange(catagoryList[Number(e.target.value)])} className="w-64 h-12 text-sm text-center border-4 border-solid rounded-full font-Inter text-interactive drop-shadow-glow bg-secondary border-interactive">
         <option value={-1}>Select Categories</option>
       {  
           catagoryList.map((object, index)=>{
