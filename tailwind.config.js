@@ -23,6 +23,7 @@ module.exports = {
         hero: "url('/hero.svg')",
         featured: "url('/featured.svg')",
         signIn: "url('/signin.svg')",
+        categories: "url('/categories.svg')"
       },
       boxShadow: {
         glow: "4px 7px 10px rgba(255, 130, 130, 0.5)",

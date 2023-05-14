@@ -8,6 +8,7 @@ import {
 import { GetServerSidePropsContext } from "next";
 import { useEffect } from "react";
 import React from "react";
+import Category from "../layouts/CategoryCard";
 
 export default function Home({
   user,
@@ -30,6 +31,7 @@ export default function Home({
       <main className="w-screen overflow-hidden bg-primary">
         <Hero user={user} userData={userData} likeCount={likeCount}/>
         <FeaturedFeed />
+        <Category/>
       </main>
     </>
   );
