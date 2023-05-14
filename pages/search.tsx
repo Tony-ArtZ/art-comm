@@ -28,7 +28,7 @@ interface Props {
 const PostDisplayElement = ({ post, router }: { post: PostQueryData, router:NextRouter }) => {
   console.log(post);
   return (
-    <div onClick={()=>router.push(`/profile/${post.created_by.id}`)} className="flex flex-row block p-4 mx-4 border-4 border-solid drop-shadow-glow border-interactive rounded-2xl bg-secondary">
+    <div onClick={()=>router.push(`/profile/${post.created_by.id}`)} className="flex flex-row block p-4 mx-4 my-2 border-4 border-solid drop-shadow-glow border-interactive rounded-2xl bg-secondary">
       <img
         className="inline w-16 h-16 border border-2 rounded-full border-interactive"
         src={post.created_by.profile_picture}
@@ -76,7 +76,7 @@ const SearchPage: NextPage<Props> = ({ query, data, user, userData }) => {
     <div>
       <NavBar router={router} signOut={signOut} handleSearchInput={handleSearchInput} search={handleSearch} user={user} userData={userData}/>
       <h1 className="w-full mt-4 mb-4 text-center text-heading font-Inter">{searchData.length>0?`Showing search results for ${searchQuery}`:"No results found... :("}</h1>
-      <ul>
+      <ul className="">
         {searchData.map((post) => (
           <PostDisplayElement key={post.id} post={post} router={router}/>
         ))}
