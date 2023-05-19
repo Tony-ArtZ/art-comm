@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 type SearchRequestBody = {
   search: string;
+  categories: string;
 };
 
 export default async function handler(
@@ -11,14 +12,13 @@ export default async function handler(
 ) {
   const supabase = createServerSupabaseClient({ req, res });
   if (req.method === "POST") {
-    const { search } = JSON.parse(req.body)
-    console.log(search)
+    const body: SearchRequestBody = JSON.parse(req.body)
     const { data, error } = await supabase
       .from("Posts")
       .select(
         "title, id, categories, created_by(id, user_name, profile_picture)"
       )
-      .ilike("title", `%${search}%`);
+      .ilike("title", `%${body.search}%`).contains("categories", body.categories?[body.categories]:[])
 
     !error
       ? res.status(200).json({ message: data })

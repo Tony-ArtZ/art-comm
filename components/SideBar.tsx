@@ -84,10 +84,10 @@ export default function SideBar({
           </button>
         </section>
           <hr className="h-[0.1rem] mx-6 mb-4 border-none rounded-full text-interactive bg-interactive" />
-          <h1 className="text-heading font-Inter text-xl px-4 text-center mb-2">Browse by categories</h1>
-          <section className="text-interactive font-Inter flex flex-col text-lg px-4 text-center">
+          <h1 className="px-4 mb-2 text-xl text-center text-heading font-Inter">Browse by categories</h1>
+          <section className="flex flex-col px-4 text-lg text-center text-interactive font-Inter">
             {
-              Object.keys(categories).map((category)=><Link href={`/search/?search=${category}`} key={category}>{category}</Link>)
+              Object.keys(categories).map((category)=><Link href={`/search/?categories=${[category]}`} key={category}>{category}</Link>)
             }
           </section>
       </div>

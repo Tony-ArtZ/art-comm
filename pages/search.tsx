@@ -1,12 +1,10 @@
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import {User, useSupabaseClient} from "@supabase/auth-helpers-react";
 import { GetServerSideProps, NextPage } from "next";
-import {handleWebpackExternalForEdgeRuntime} from "next/dist/build/webpack/plugins/middleware-plugin";
 import { NextRouter, useRouter } from "next/router";
 import {useEffect, useState} from "react";
-import { FaSearch } from "react-icons/fa";
 import NavBar from "../components/NavBar";
-
+import { categories } from "../lib/categories";
 interface UserPosterData {
   user_name: string;
   id: string;
@@ -16,10 +14,11 @@ interface PostQueryData {
   title: string;
   id: string;
   created_by: UserPosterData;
-  categories: string[];
+  categories: string;
 }
 interface Props {
   query: string;
+  currentCategory: string;
   data: PostQueryData[];
   user: User;
   userData: any;
@@ -43,9 +42,10 @@ const PostDisplayElement = ({ post, router }: { post: PostQueryData, router:Next
     </div>
   );
 };
-const SearchPage: NextPage<Props> = ({ query, data, user, userData }) => {
+const SearchPage: NextPage<Props> = ({ query, currentCategory, data, user, userData }) => {
   const [searchData, SetSearchData] = useState(data)
   const [searchQuery, SetSearchQuery] = useState(query)
+  const [selectedCategory, SetSelectedCategory] = useState<string|null>(currentCategory)
   const router = useRouter();
   const supabaseClient = useSupabaseClient();
 
@@ -55,13 +55,17 @@ const SearchPage: NextPage<Props> = ({ query, data, user, userData }) => {
     router.push('/')
   }
 
-  const handleSearchInput = (e:React.ChangeEvent<HTMLInputElement>) => {
-    SetSearchQuery(e.target.value)
+  const handleSearchInput = (value:string) => {
+    SetSearchQuery(value)
+  }
+
+  const handleChangeCategory = (e:React.ChangeEvent<HTMLSelectElement>) => {
+    SetSelectedCategory(e.target.value as string)
   }
 
   const handleSearch = (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    fetch("/api/getsearchresult/", {method:"POST", body:JSON.stringify({search:searchQuery})})
+    fetch("/api/getsearchresult/", {method:"POST", body:JSON.stringify({search:searchQuery, categories: selectedCategory})})
       .then((res)=>res.json())
       .then((data)=>{
     console.log(data)
@@ -74,11 +78,23 @@ const SearchPage: NextPage<Props> = ({ query, data, user, userData }) => {
 
   return (
     <div>
-      <NavBar router={router} signOut={signOut} handleSearchInput={handleSearchInput} search={handleSearch} user={user} userData={userData}/>
+      <NavBar router={router} signOut={signOut} handleSearchInput={handleSearchInput} search={handleSearch} user={user} userData={userData} value={searchQuery}/>
+        <section className="flex items-center justify-center w-full h-16 border-solid gap-2 border-y-2 bg-secondary border-interactive">
+          <h1 className="inline text-interactive font-Inter">Category:</h1>
+      <select value={selectedCategory as string} onChange={handleChangeCategory} className="inline p-2 text-sm w-44 input-field">
+        {currentCategory && <option value={currentCategory}>{categories[currentCategory as keyof typeof categories]}</option>}
+        {Object.keys(categories).map((category)=>{
+          if(categories[category as keyof typeof categories] !== currentCategory) {
+            return <option value={categories[category as keyof typeof categories]}>{category}</option>
+          }
+        })
+        }
+      </select>
+        </section>
       <h1 className="w-full mt-4 mb-4 text-center text-heading font-Inter">{searchData.length>0?`Showing search results for ${searchQuery}`:"No results found... :("}</h1>
       <ul className="">
         {searchData.map((post) => (
-          <PostDisplayElement key={post.id} post={post} router={router}/>
+          <PostDisplayElement key={post.id} post={post} router={router} />
         ))}
       </ul>
     </div>
@@ -86,7 +102,15 @@ const SearchPage: NextPage<Props> = ({ query, data, user, userData }) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { search } = context.query;
+  const {search, categories}= context.query;
+  if(!search && !categories)
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false
+      }
+    }
+
   const supabase = createServerSupabaseClient(context);
   const {data:{session}} = await supabase.auth.getSession()
   let userData=null
@@ -96,18 +120,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       .select()
       .eq("id", session.user.id);
     userData = data;
-    console.log(data)
   }
    const { data, error } = await supabase
     .from("Posts")
     .select("title, id, categories, created_by(id, user_name, profile_picture)")
-    .ilike("title", `%${search}%`);
-
-  console.log(search);
-  console.log(data, error);
+    .ilike("title", `%${search?search:""}%`)
+    .contains("categories", categories?[categories]:[])
+    console.log(error)
   return {
     props: {
-      query: search as string,
+      query: search?search:"",
+      currentCategory: categories?categories:null,
       data,
       user: session?.user,
       userData:userData && userData[0]
