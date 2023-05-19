@@ -27,7 +27,7 @@ interface Props {
 const PostDisplayElement = ({ post, router }: { post: PostQueryData, router:NextRouter }) => {
   console.log(post);
   return (
-    <div onClick={()=>router.push(`/profile/${post.created_by.id}`)} className="flex flex-row block p-4 mx-4 my-2 border-4 border-solid drop-shadow-glow border-interactive rounded-2xl bg-secondary">
+    <div onClick={()=>router.push(`/profile/${post.created_by.id}`)} className="flex flex-row p-4 m-0 my-2 w-full border-4 border-solid drop-shadow-glow border-interactive rounded-2xl bg-secondary">
       <img
         className="inline w-16 h-16 border border-2 rounded-full border-interactive"
         src={post.created_by.profile_picture}
@@ -46,6 +46,7 @@ const SearchPage: NextPage<Props> = ({ query, currentCategory, data, user, userD
   const [searchData, SetSearchData] = useState(data)
   const [searchQuery, SetSearchQuery] = useState(query)
   const [selectedCategory, SetSelectedCategory] = useState<string|null>(currentCategory)
+  const [displaySearchQuery, SetDisplaySearchQuery] = useState<string|null>(query)
   const router = useRouter();
   const supabaseClient = useSupabaseClient();
 
@@ -71,32 +72,34 @@ const SearchPage: NextPage<Props> = ({ query, currentCategory, data, user, userD
     console.log(data)
         if(!data.error) {
           SetSearchData(data.message)
+          SetDisplaySearchQuery(searchQuery)
             console.log(searchData)
         }
       })
   }
 
   return (
-    <div>
+    <div className="w-screen overflow-hidden">
       <NavBar router={router} signOut={signOut} handleSearchInput={handleSearchInput} search={handleSearch} user={user} userData={userData} value={searchQuery}/>
         <section className="flex items-center justify-center w-full h-16 border-solid gap-2 border-y-2 bg-secondary border-interactive">
           <h1 className="inline text-interactive font-Inter">Category:</h1>
       <select value={selectedCategory as string} onChange={handleChangeCategory} className="inline p-2 text-sm w-44 input-field">
         {currentCategory && <option value={currentCategory}>{categories[currentCategory as keyof typeof categories]}</option>}
+        <option value="">All Categories</option>
         {Object.keys(categories).map((category)=>{
           if(categories[category as keyof typeof categories] !== currentCategory) {
-            return <option value={categories[category as keyof typeof categories]}>{category}</option>
+            return <option key={category} value={categories[category as keyof typeof categories]}>{category}</option>
           }
         })
         }
       </select>
         </section>
-      <h1 className="w-full mt-4 mb-4 text-center text-heading font-Inter">{searchData.length>0?`Showing search results for ${searchQuery}`:"No results found... :("}</h1>
-      <ul className="">
+      { displaySearchQuery && <h1 className="w-full mt-4 mb-4 text-center text-heading font-Inter">{searchData.length>0?`Showing search results for ${displaySearchQuery}`:"No results found... :("}</h1>}
+      <section className="px-4 w-full grid place-items-center m-0">
         {searchData.map((post) => (
           <PostDisplayElement key={post.id} post={post} router={router} />
         ))}
-      </ul>
+      </section>
     </div>
   );
 };

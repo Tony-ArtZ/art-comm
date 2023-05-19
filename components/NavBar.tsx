@@ -46,7 +46,7 @@ export default function NavBar ({user, userData, signOut, likeCount, search, han
             Signout
             </button>
             <Link href={`/profile/${user?.id}`}>
-            <Image width={24} height={24} alt="Profile" className="p-0 m-0 border-2 rounded-full w-14 h-14 border-interactive drop-shadow-glow md:hidden" src={userData.profile_picture} />
+            <Image width={24} height={24} alt="Profile" className="p-0 m-0 mr-1 border-2 rounded-full w-14 h-14 border-interactive drop-shadow-glow md:hidden" src={userData.profile_picture} />
             </Link>
             </>
           ):(
