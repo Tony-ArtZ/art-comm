@@ -37,7 +37,7 @@ export default function SideBar({
     <>
       <div
         className={`w-9/12 h-screen bg-primary fixed ${
-          !showSideBar ? "-left-[1000px]" : "left-0"
+          !showSideBar ? "-left-[10000px]" : "left-0"
         } shadow-glowHigh transition-all ease-in-out duration-300 z-50 `}
       >
         <div className="flex w-full mt-2 mb-4">

@@ -27,7 +27,7 @@ interface Props {
 const PostDisplayElement = ({ post, router }: { post: PostQueryData, router:NextRouter }) => {
   console.log(post);
   return (
-    <div onClick={()=>router.push(`/profile/${post.created_by.id}`)} className="flex flex-row p-4 m-0 my-2 w-full border-4 border-solid drop-shadow-glow border-interactive rounded-2xl bg-secondary">
+    <div onClick={()=>router.push(`/profile/${post.created_by.id}`)} className="flex flex-row w-full p-4 m-0 my-2 border-4 border-solid drop-shadow-glow border-interactive rounded-2xl bg-secondary">
       <img
         className="inline w-16 h-16 border border-2 rounded-full border-interactive"
         src={post.created_by.profile_picture}
@@ -50,6 +50,7 @@ const SearchPage: NextPage<Props> = ({ query, currentCategory, data, user, userD
   const router = useRouter();
   const supabaseClient = useSupabaseClient();
 
+  useEffect(()=>{handleSearch()},[selectedCategory])
   const signOut = async (e:React.MouseEvent<HTMLButtonElement>)=> {
     e.preventDefault()
     await supabaseClient.auth.signOut()
@@ -64,8 +65,7 @@ const SearchPage: NextPage<Props> = ({ query, currentCategory, data, user, userD
     SetSelectedCategory(e.target.value as string)
   }
 
-  const handleSearch = (e:React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
+  const handleSearch = () => {
     fetch("/api/getsearchresult/", {method:"POST", body:JSON.stringify({search:searchQuery, categories: selectedCategory})})
       .then((res)=>res.json())
       .then((data)=>{
@@ -95,7 +95,7 @@ const SearchPage: NextPage<Props> = ({ query, currentCategory, data, user, userD
       </select>
         </section>
       { displaySearchQuery && <h1 className="w-full mt-4 mb-4 text-center text-heading font-Inter">{searchData.length>0?`Showing search results for ${displaySearchQuery}`:"No results found... :("}</h1>}
-      <section className="px-4 w-full grid place-items-center m-0">
+      <section className="w-full px-4 m-0 grid place-items-center">
         {searchData.map((post) => (
           <PostDisplayElement key={post.id} post={post} router={router} />
         ))}
