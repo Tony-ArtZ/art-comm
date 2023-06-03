@@ -46,7 +46,7 @@ export default function Home() {
   const signInWithGoogle = async () => {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
-      options: {redirectTo: '/register'}
+      options: {redirectTo: 'http://localhost:3000/search/'}
     });
 
     if (!error) {

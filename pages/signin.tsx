@@ -23,7 +23,7 @@ export default function SignIn() {
     e.preventDefault();
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
-      //options: {redirectTo: '/'}
+      options: {redirectTo: 'http://localhost:3000/'}
     });
   };
   const supabaseSignIn = async (e:any) => {
