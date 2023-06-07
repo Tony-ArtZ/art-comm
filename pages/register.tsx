@@ -46,7 +46,7 @@ export default function Home() {
   const signInWithGoogle = async () => {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
-      options: {redirectTo: 'http://localhost:3000/search/'}
+      options: {redirectTo: 'http://localhost:3000/createaccount/'}
     });
 
     if (!error) {
@@ -67,13 +67,13 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="w-screen h-screen overflow-hidden flex flex-col justify-center items-center bg-signIn object-cover bg-cover">
-        <section className="w-fit flex p-1 md:p-0 flex-row  bg-secondary md:drop-shadow-glowHigh rounded-3xl">
+      <main className="flex flex-col items-center justify-center object-cover w-screen h-screen overflow-hidden bg-cover bg-signIn">
+        <section className="flex flex-row p-1 w-fit md:p-0 bg-secondary md:drop-shadow-glowHigh rounded-3xl">
           <div className="h-96 w-96 xl:w-[520px] xl:h-[520px] hidden md:flex">
             <Image
               src={artist}
               alt="artist"
-              className="h-full w-full drop-shadow-glowHigh"
+              className="w-full h-full drop-shadow-glowHigh"
             />
           </div>
           <div className=" h-[520px] w-96 xl:w-[580px] xl:h-[600px] p-8 m-2 xl:p-16 rounded-3xl bg-primary drop-shadow-glow ">
@@ -83,11 +83,11 @@ export default function Home() {
             <form
               id="register"
               onSubmit={supabaseSignUp}
-              className="flex flex-col w-full h-fit justify-center items-center mt-10 xl:mt-20 gap-4"
+              className="flex flex-col items-center justify-center w-full mt-10 h-fit xl:mt-20 gap-4"
             >
               {/*<label
                 htmlFor="profile-picture"
-                className=" h-32 w-32 flex rounded-full bg-secondary"
+                className="flex w-32 h-32 rounded-full bg-secondary"
               >
                 <input
                   type="file"
@@ -119,14 +119,14 @@ export default function Home() {
                 placeholder="Confirm Password"
                 type="password"
               />
-              <button type="submit" form="register" className="btn-secondary ">
+              <button type="submit" form="register" className="btn-secondary">
                 Register
               </button>
-              <p className="font-Inter mt-2 text-sm xl:text-xl xl:mt-2 text-heading">
+              <p className="mt-2 text-sm font-Inter xl:text-xl xl:mt-2 text-heading">
                 Already have an Account?{" "}
                 <Link
                   href="/signin"
-                  className="text-interactive text-md font-Inter drop-shadow-glowHigh underline"
+                  className="underline text-interactive text-md font-Inter drop-shadow-glowHigh"
                 >
                   Sign-in
                 </Link>
