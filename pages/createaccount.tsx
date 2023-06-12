@@ -7,9 +7,48 @@ import type {
 } from "next";
 import Image from "next/image";
 import Head from "next/head";
+import { FaEdit } from "react-icons/fa";
+import { useEffect, useRef, useState } from "react";
+import { BiUpload } from "react-icons/bi";
+import {useRouter} from "next/router";
 
 export default function CreateAccount() {
-  return(
+  const [imageBlob, SetImageBlob] = useState<Blob | null>();
+  const [previewImage, SetPreviewImage] = useState<string | null>();
+  const [userName, SetUserName] = useState<string>();
+
+  const fileReaderRef = useRef<null | FileReader>(null);
+  const router = useRouter()
+
+  useEffect(() => {
+    fileReaderRef.current = new FileReader();
+  }, []);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileSelected = e.target.files && e.target.files[0];
+    const fileReader = fileReaderRef.current;
+
+    if (fileReader && fileSelected) {
+      fileReader.onloadend = () => {
+        SetPreviewImage(fileReader?.result as string);
+        SetImageBlob(fileSelected);
+      };
+
+      fileReader.readAsDataURL(fileSelected);
+    }
+  };
+
+  const handleCreateAccount = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const dataForm = new FormData();
+    dataForm.append("imageBlob", imageBlob!);
+    dataForm.append("userName", userName!);
+    fetch("/api/createaccount", {method:"POST", body:dataForm})
+    .then((res)=>res.json())
+    .then((data)=>router.push("/"))
+  };
+
+  return (
     <>
       <Head>
         <title>CreateAccount</title>
@@ -26,26 +65,68 @@ export default function CreateAccount() {
               className="w-full h-full drop-shadow-glowHigh"
             />
           </div>
-          <div className=" h-96 w-96 xl:w-[580px] xl:h-[600px] p-8 m-2 xl:p-16 rounded-3xl bg-primary drop-shadow-glow ">
+          <div className="  w-96 xl:w-[580px] xl:h-[600px] p-8 m-2 xl:p-16 rounded-3xl bg-primary drop-shadow-glow ">
             <h1 className="text-4xl xl:text-[52px] text-heading drop-shadow-glow font-Inter ">
               Create New Account
             </h1>
             <form
+              onSubmit={handleCreateAccount}
               className="flex flex-col items-center justify-center w-full mt-10 h-fit xl:mt-20 gap-4"
               id="signIn"
             >
               <input
-                className="input-field"
-                placeholder="Email"
-                type="email"
+                required
+                id="profileInput"
+                type="file"
+                accept="image/png, image/jpeg"
+                onChange={handleImageChange}
+                className="absolute top-[1000] -z-20 hidden"
               />
+              <label
+                htmlFor="profileInput"
+                className="relative z-20 rounded-full w-28 h-28 outline bg-secondary outline-8 outline-interactive shadow-glow grid place-items-center"
+              >
+                <div className="absolute z-20 p-2 text-2xl text-center border-2 border-solid rounded-full -top-3 -right-3 grid place-items-center bg-secondary drop-shadow-glowHigh text-interactive border-interactive">
+                  <FaEdit />
+                </div>
+                {!previewImage ? (
+                  <div className="p-4 text-center text-md font-Inter text-interactive">
+                    Upload Image
+                    <BiUpload className="w-full text-xl text-center" />
+                  </div>
+                ) : (
+                  <Image
+                    width={64}
+                    height={64}
+                    placeholder="blur"
+                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAGCAYAAAD68A/GAAAACXBIWXMAADXUAAA11AFeZeUIAAAAo0lEQVQIHS2OsW7DMAxEH0VKdtOl//83XbpkzVJkLroGCZCisCXm7EQAgaP4jkf7/Tymh+NvE3FoeKvgjvF6LxF+T0pNvAx8YyaHPsjeYaRoleDg2rGW2FA39L0I0NB2UDpl2sD/y5+SjH4zohkWe/LTsKzYupKqOJ1/dlfzQlVq0dr3JlrDDfK+6pSF+Dp/a3tHDLUYswwf88wkXS2pOsMV/wD+v0XbEuUSvAAAAABJRU5ErkJggg=="
+                    alt="profile"
+                    src={previewImage}
+                    className="w-24 h-24 rounded-full"
+                  />
+                )}
+              </label>
+              <label className="w-full px-4 text-interactive font-Inter">
+                Full Name:
+              </label>
               <input
+                required
                 className="input-field"
-                placeholder="Password"
-                type="password"
+                placeholder="Jhon Doe"
+                type="text"
+              />
+              <label className="w-full px-4 text-interactive font-Inter">
+                User Name:
+              </label>
+              <input
+                onChange={(e)=>SetUserName(e.target.value)}
+                required
+                className="input-field"
+                placeholder="@jhondoe007"
+                type="text"
               />
               <button type="submit" form="signIn" className="btn-secondary">
-                Sign-In
+                Create Account
               </button>
             </form>
           </div>
@@ -62,15 +143,15 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  
-  const user = session?.user
+
+  const user = session?.user;
 
   const { count } = await supabase
     .from("Users")
     .select("*", { count: "exact" })
     .eq("id", user?.id);
 
-    console.log(count, user?.id)
+  console.log(count, user?.id);
 
   if (count && count > 0) {
     return {
@@ -83,7 +164,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
   return {
     props: {
-      user: user?user.id:null
-    }
-  }
+      user: user ? user.id : null,
+    },
+  };
 };
