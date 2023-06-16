@@ -95,7 +95,7 @@ export default function CommissionCard({
     };
 
     fileReader?.readAsDataURL(image);
-  }, [imageBlobs[post.id], fileReader]);
+  }, [fileReader, imageBlobs, post.id]);
 
   return (
     <div className="p-4 my-4 border-4 border-solid min-h-max shrink-0 border-interactive rounded-xl bg-secondary">

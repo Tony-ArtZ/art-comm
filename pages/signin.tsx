@@ -79,7 +79,7 @@ export default function SignIn() {
                 Sign-In
               </button>
               <p className="font-Inter mt-2 text-sm xl:text-xl xl:mt-16 text-heading">
-                Don't have an Account?{" "}
+                Don&apost have an Account?
                 <Link
                   href="/register"
                   className="text-interactive text-md font-Inter drop-shadow-glowHigh underline"

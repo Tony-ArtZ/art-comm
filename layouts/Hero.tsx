@@ -31,7 +31,7 @@ const Hero = ({user, userData, likeCount}: {user: User, userData:any, likeCount:
     SetSearchQuery(value)
   }
 
-  const handleSearch = (e:React.MouseEvent<HTMLButtonElement>) => {
+  const handleSearch = () => {
     router.push(`/search/?search=${searchQuery}`)
   }
 

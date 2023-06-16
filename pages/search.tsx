@@ -50,7 +50,6 @@ const SearchPage: NextPage<Props> = ({ query, currentCategory, data, user, userD
   const router = useRouter();
   const supabaseClient = useSupabaseClient();
 
-  useEffect(()=>{handleSearch()},[selectedCategory])
   const signOut = async (e:React.MouseEvent<HTMLButtonElement>)=> {
     e.preventDefault()
     await supabaseClient.auth.signOut()
@@ -63,6 +62,8 @@ const SearchPage: NextPage<Props> = ({ query, currentCategory, data, user, userD
 
   const handleChangeCategory = (e:React.ChangeEvent<HTMLSelectElement>) => {
     SetSelectedCategory(e.target.value as string)
+    //TODO:Category doesn't Update in the render
+    handleSearch()
   }
 
   const handleSearch = () => {
@@ -80,7 +81,8 @@ const SearchPage: NextPage<Props> = ({ query, currentCategory, data, user, userD
 
   return (
     <div className="w-screen overflow-hidden">
-      <NavBar router={router} signOut={signOut} handleSearchInput={handleSearchInput} search={handleSearch} user={user} userData={userData} value={searchQuery}/>
+      {"TODO: FIX LIKE COUNT"}
+      <NavBar likeCount={2} router={router} signOut={signOut} handleSearchInput={handleSearchInput} search={handleSearch} user={user} userData={userData} value={searchQuery}/>
         <section className="flex items-center justify-center w-full h-16 border-solid gap-2 border-y-2 bg-secondary border-interactive">
           <h1 className="inline text-interactive font-Inter">Category:</h1>
       <select value={selectedCategory as string} onChange={handleChangeCategory} className="inline p-2 text-sm w-44 input-field">
