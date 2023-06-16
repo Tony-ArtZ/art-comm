@@ -12,7 +12,6 @@ import {
 } from '@supabase/auth-helpers-react';
 
 export default function Home() {
-  const [userName, SetUserName] = useState("");
   const [email, SetEmail] = useState("");
   const [password, SetPassword] = useState("");
   const { push } = useRouter();
@@ -34,19 +33,12 @@ export default function Home() {
       email: email,
       password: password,
     });
-    const profilePicture = `https://ui-avatars.com/api/?name=${userName}&background=FFC3A1&color=ffffff`;
-
-    if (!error) {
-      updateUserData(data?.user?.id, userName,  data.user?.user_metadata.avatar_url);
-    } else {
-      console.log(error);
-    }
     }
 
   const signInWithGoogle = async () => {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
-      options: {redirectTo: 'http://localhost:3000/createaccount/'}
+      options: {redirectTo: 'http://localhost:3000/'}
     });
 
     if (!error) {
@@ -96,12 +88,6 @@ export default function Home() {
                   className="hidden"
                 />
               </label>*/}
-              <input
-                className="input-field"
-                placeholder="User Name"
-                type="text"
-                onChange={(e) => SetUserName(e.target.value)}
-              />
               <input
                 className="input-field"
                 placeholder="Email"

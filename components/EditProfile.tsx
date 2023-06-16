@@ -173,7 +173,7 @@ export default function EditProfile({
           onChange={handleDescriptionChange}
           className="p-2 mt-3 mb-4 font-sans text-center bg-transparent rounded-xl outline outline-solid outline-4 outline-interactive fh-24 font-bolder w-80"
         >
-          {userData?.description}
+          {userData?.description?userData.description:"No Description"}
         </textarea>
         {hasChanges && (
           <button className="mb-4 btn-primary" type="submit">

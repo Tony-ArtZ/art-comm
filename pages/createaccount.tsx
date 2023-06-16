@@ -10,15 +10,19 @@ import Head from "next/head";
 import { FaEdit } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 import { BiUpload } from "react-icons/bi";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
+import { CircleLoader } from "react-spinners";
+import { Slide, toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function CreateAccount() {
   const [imageBlob, SetImageBlob] = useState<Blob | null>();
   const [previewImage, SetPreviewImage] = useState<string | null>();
   const [userName, SetUserName] = useState<string>();
+  const [loading, SetLoading] = useState(false);
 
   const fileReaderRef = useRef<null | FileReader>(null);
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     fileReaderRef.current = new FileReader();
@@ -39,13 +43,20 @@ export default function CreateAccount() {
   };
 
   const handleCreateAccount = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
+    SetLoading(true);
     const dataForm = new FormData();
     dataForm.append("imageBlob", imageBlob!);
     dataForm.append("userName", userName!);
-    fetch("/api/createaccount", {method:"POST", body:dataForm})
-    .then((res)=>res.json())
-    .then((data)=>router.push("/"))
+    fetch("/api/createaccount", { method: "POST", body: dataForm })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.error) {
+          SetLoading(false);
+          toast.success("Successfully Created Account");
+          router.push("/");
+        }
+      });
   };
 
   return (
@@ -56,6 +67,16 @@ export default function CreateAccount() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      {loading && (
+        <div className="fixed top-0 left-0 z-50 w-screen h-screen bg-white grid place-items-center bg-opacity-90">
+          <div className="flex flex-col items-center gap-4">
+            <CircleLoader size={80} color="#EF798A" />
+            <h1 className="text-center font-Inter text-interactive">
+              Please Wait...
+            </h1>
+          </div>
+        </div>
+      )}
       <main className="flex flex-col items-center justify-center object-cover w-screen h-screen overflow-hidden bg-cover bg-signIn">
         <section className="flex flex-row p-1 w-fit md:p-0 bg-secondary md:drop-shadow-glowHigh rounded-3xl">
           <div className="w-96 h-96 xl:w-[520px] xl:h-[520px] hidden md:flex">
@@ -102,7 +123,7 @@ export default function CreateAccount() {
                     blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAGCAYAAAD68A/GAAAACXBIWXMAADXUAAA11AFeZeUIAAAAo0lEQVQIHS2OsW7DMAxEH0VKdtOl//83XbpkzVJkLroGCZCisCXm7EQAgaP4jkf7/Tymh+NvE3FoeKvgjvF6LxF+T0pNvAx8YyaHPsjeYaRoleDg2rGW2FA39L0I0NB2UDpl2sD/y5+SjH4zohkWe/LTsKzYupKqOJ1/dlfzQlVq0dr3JlrDDfK+6pSF+Dp/a3tHDLUYswwf88wkXS2pOsMV/wD+v0XbEuUSvAAAAABJRU5ErkJggg=="
                     alt="profile"
                     src={previewImage}
-                    className="w-24 h-24 rounded-full"
+                    className="rounded-full w-28 h-28"
                   />
                 )}
               </label>
@@ -119,7 +140,7 @@ export default function CreateAccount() {
                 User Name:
               </label>
               <input
-                onChange={(e)=>SetUserName(e.target.value)}
+                onChange={(e) => SetUserName(e.target.value)}
                 required
                 className="input-field"
                 placeholder="@jhondoe007"
@@ -132,6 +153,19 @@ export default function CreateAccount() {
           </div>
         </section>
       </main>
+      <ToastContainer
+        transition={Slide}
+        theme="colored"
+        toastStyle={{
+          fontWeight: "bold",
+          border: "solid 4px",
+          borderRadius: "15px",
+          backgroundColor: "#FFE7E7",
+          color: "#EF798A",
+        }}
+        bodyStyle={{ color: "#EF798A" }}
+        autoClose={3000}
+      />
     </>
   );
 }

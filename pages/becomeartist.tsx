@@ -86,7 +86,7 @@ export default function BecomeArtist({
         console.log(data["message"]);
         if (!data.error) {
           toast.success("Congrats! welcome to Art-Comm");
-          router.push(`profile/${userData.id}`);
+          router.push(`profile/${user.id}`);
         }
       });
   };

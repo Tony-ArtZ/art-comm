@@ -9,19 +9,21 @@ import { GetServerSidePropsContext } from "next";
 import { useEffect } from "react";
 import React from "react";
 import Category from "../layouts/CategoryCard";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 
 export default function Home({
   user,
   userData,
   likeCount,
+  featuredArtists,
 }: {
   user: User;
   userData: any;
-  likeCount: null|number;
+  likeCount: null | number;
+  featuredArtists:any;
 }) {
-  const router = useRouter()
-  console.log(likeCount)
+  const router = useRouter();
+  console.log(likeCount);
   return (
     <>
       <Head>
@@ -31,9 +33,9 @@ export default function Home({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="w-screen overflow-hidden bg-primary">
-        <Hero user={user} userData={userData} likeCount={likeCount}/>
-        <FeaturedFeed />
-        <Category router={router}/>
+        <Hero user={user} userData={userData} likeCount={likeCount} />
+        <FeaturedFeed artists={featuredArtists} />
+        <Category router={router} />
       </main>
     </>
   );
@@ -48,7 +50,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   } = await supabase.auth.getSession();
 
   let userData = null;
-  let likeCount:null|number= null
+  let likeCount: null | number = null;
 
   if (!session) return { props: { user: null } };
   else {
@@ -58,19 +60,23 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       .eq("id", session.user.id);
     userData = data?.at(0) ? data.at(0) : null;
     if (!userData) {
-      const updates = {
-        id: session?.user.id,
-        user_name: session?.user.user_metadata.name,
-        profile_picture: session?.user.user_metadata.avatar_url,
+      return {
+        redirect: {
+          destination: "/createaccount",
+          permanent: false,
+        },
       };
-      const { error } = await supabase.from("Users").upsert(updates);
-      }
-
-      const {count} = await supabase.from("Likes").select("*", {count:"exact"}).eq("liked", session.user.id)
-      likeCount = count
-      console.log(count)
     }
 
+    const { count } = await supabase
+      .from("Likes")
+      .select("*", { count: "exact" })
+      .eq("liked", session.user.id);
+    likeCount = count;
+    console.log(count);
+  }
+
+  const {data:featuredArtists} = await supabase.from("Artists").select("*, Users(profile_picture, banner_picture, user_name)").limit(3)
 
   return {
     props: {
@@ -78,6 +84,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       user: session.user,
       userData: userData,
       likeCount: likeCount,
+      featuredArtists
     },
   };
 };
