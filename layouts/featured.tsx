@@ -26,7 +26,7 @@ const FeaturedFeed = ({artists}:{artists:UserData[]}) => {
       </h1>
       <div className="mt-20">
         <Carousel centerMode renderArrowNext={(clickHandler: () => void, hasNext: boolean, label: string)=> hasNext && <IoIosArrowForward onClick={clickHandler} className="absolute top-0 bottom-0 z-20 flex items-center justify-center w-12 h-12 p-1 my-auto text-4xl font-extrabold border-4 border-solid rounded-full border-interactive text-interactive drop-shadow-glowHigh right-2 bg-secondary"/>} renderArrowPrev={(clickHandler: () => void, hasPrev: boolean, label: string)=> hasPrev && <IoIosArrowBack onClick={clickHandler} className="absolute top-0 bottom-0 z-20 flex items-center justify-center w-12 h-12 p-1 my-auto text-4xl font-extrabold border-4 border-solid rounded-full border-interactive text-interactive drop-shadow-glowHigh left-2 bg-secondary"/>} showArrows showStatus={false} centerSlidePercentage={50} autoPlay infiniteLoop>
-          {artists.map((artist)=><Cards userData={artist}/>)}
+          {artists && artists?.map((artist)=><Cards userData={artist}/>)}
         </Carousel>
       </div>
     </header>

@@ -20,7 +20,7 @@ export default function Home({
   user: User;
   userData: any;
   likeCount: null | number;
-  featuredArtists:any;
+  featuredArtists: any;
 }) {
   const router = useRouter();
   console.log(likeCount);
@@ -51,8 +51,13 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
   let userData = null;
   let likeCount: null | number = null;
+  
+  const { data: featuredArtists } = await supabase
+    .from("Artists")
+    .select("*, Users(profile_picture, banner_picture, user_name)")
+    .limit(3);
 
-  if (!session) return { props: { user: null } };
+  if (!session) return { props: { user: null, featuredArtists } };
   else {
     const { data, error } = await supabase
       .from("Users")
@@ -73,10 +78,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       .select("*", { count: "exact" })
       .eq("liked", session.user.id);
     likeCount = count;
-    console.log(count);
   }
 
-  const {data:featuredArtists} = await supabase.from("Artists").select("*, Users(profile_picture, banner_picture, user_name)").limit(3)
 
   return {
     props: {
@@ -84,7 +87,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       user: session.user,
       userData: userData,
       likeCount: likeCount,
-      featuredArtists
+      featuredArtists,
     },
   };
 };
