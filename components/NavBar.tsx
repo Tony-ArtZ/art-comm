@@ -96,7 +96,7 @@ export default function NavBar({
               <Link href="/signin" className="hidden list-item sm:flex">
                 Sign In
               </Link>
-              <Link href="/register" className="px-1 list-item">
+              <Link href="/register" className="list-item">
                 Join Us
               </Link>
             </>
