@@ -88,7 +88,7 @@ export default function Home({
   }, [userData]);
 
   const updateLike = async () => {
-    fetch("api/update/addLike", {
+    fetch("/api/update/addLike", {
       method: "POST",
       body: JSON.stringify({ likedId: accountId }),
     })
